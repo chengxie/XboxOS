@@ -103,7 +103,7 @@ id: root
         }
         ListElement {
             settingName: "Collection 1 - Thumbnail"
-            setting: "Wide,Tall,Square"
+            setting: "Wide,Tall,Square,Box Art"
         }
         ListElement {
             settingName: "Collection 2"
@@ -111,7 +111,7 @@ id: root
         }
         ListElement {
             settingName: "Collection 2 - Thumbnail"
-            setting: "Tall,Square,Wide"
+            setting: "Wide,Tall,Square,Box Art"
         }
         ListElement {
             settingName: "Collection 3"
@@ -119,7 +119,7 @@ id: root
         }
         ListElement {
             settingName: "Collection 3 - Thumbnail"
-            setting: "Wide,Tall,Square"
+            setting: "Wide,Tall,Square,Box Art"
         }
         ListElement {
             settingName: "Collection 4"
@@ -127,7 +127,7 @@ id: root
         }
         ListElement {
             settingName: "Collection 4 - Thumbnail"
-            setting: "Tall,Square,Wide"
+            setting: "Wide,Tall,Square,Box Art"
         }
         ListElement {
             settingName: "Collection 5"
@@ -135,7 +135,7 @@ id: root
         }
         ListElement {
             settingName: "Collection 5 - Thumbnail"
-            setting: "Wide,Tall,Square"
+            setting: "Wide,Tall,Square,Box Art"
         }
 
     }

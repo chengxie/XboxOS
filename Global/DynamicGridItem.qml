@@ -53,39 +53,19 @@ id: root
 
     // In order to use the retropie icons here we need to do a little collection specific hack
     property bool playVideo: gameData ? gameData.assets.videoList.length && (settings.AllowThumbVideo == "Yes") : ""
-    scale: selected ? 1 : 0.95
+    property bool hideLogoForPlayVideo: settings.HideLogo == "Yes"
+
+    scale: selected ? 1.1 : 1
     Behavior on scale { NumberAnimation { duration: 100 } }
     z: selected ? 10 : 1
-
-    onSelectedChanged: {
-        if (selected && playVideo)
-            fadescreenshot.restart();
-        else {
-            fadescreenshot.stop();
-            screenshot.opacity = 1;
-            container.opacity = 1;
-        }
-    }
-
-    // NOTE: Fade out the bg so there is a smooth transition into the video
-    Timer {
-    id: fadescreenshot
-
-        interval: 1200
-        onTriggered: {
-            if (settings.HideLogo == "Yes")
-                container.opacity = 0;
-            else
-                screenshot.opacity = 0;
-        }
-    }
 
     Item 
     {
     id: container
 
         anchors.fill: parent
-        Behavior on opacity { NumberAnimation { duration: 200 } }
+        opacity: (selected && hideLogoForPlayVideo) ? 0 : 1
+        Behavior on opacity { NumberAnimation { duration: 700 } }
 
         Image {
         id: screenshot
@@ -103,18 +83,24 @@ id: root
         Image {
         id: favelogo
 
-            anchors.fill: parent
-            anchors.centerIn: parent
-            anchors.margins: root.width/10
             property var logoImage: (gameData && gameData.collections.get(0).shortName === "retropie") ? gameData.assets.boxFront : (gameData.collections.get(0).shortName === "steam") ? logo(gameData) : gameData.assets.logo
             source: modelData ? logoImage || "" : ""
             sourceSize { width: 200; height: 150 }
             fillMode: Image.PreserveAspectFit
             asynchronous: true
             smooth: true
-            scale: selected ? 1.1 : 1
-            Behavior on scale { NumberAnimation { duration: 100 } }
             z: 10
+
+            // 根据选中状态调整位置和大小            
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            width: (selected && !hideLogoForPlayVideo) ? parent.width * 0.3 : parent.width * 0.8
+            anchors.horizontalCenterOffset: (selected && !hideLogoForPlayVideo) ? - (parent.width / 2 - width / 2 - 10) : 0
+            anchors.verticalCenterOffset: (selected && !hideLogoForPlayVideo) ? (parent.height / 2 - height / 2 - 10) : 0
+            // 添加动画过渡效果
+            Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: 200 } }
+            Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: 200 } }
+
         }
 
         Rectangle {
@@ -122,7 +108,8 @@ id: root
         
             anchors.fill: parent
             color: screenshot.source == "" ? theme.secondary : "black"
-            opacity: screenshot.source == "" ? 1 : selected ? 0.1 : 0.2
+            //opacity: screenshot.source == "" ? 1 : selected ? 0.1 : 0.2
+            opacity: (selected && playVideo && !hideLogoForPlayVideo) ? 0 : (screenshot.source == "") ? 0.5 : 0.2
         }
         
         Rectangle {
@@ -141,9 +128,9 @@ id: root
     id: borderloader
 
         active: selected
-        anchors.fill: parent
+        anchors.fill: container
         sourceComponent: border
-        asynchronous: true
+        asynchronous: true     
     }
 
     Component {
@@ -159,8 +146,8 @@ id: root
         color: theme.text
         font {
             family: subtitleFont.name
-            pixelSize: vpx(12)
-            bold: true
+            pixelSize: vpx(16)
+            bold: false
         }
 
         elide: Text.ElideRight
@@ -169,11 +156,12 @@ id: root
 
         anchors {
             top: container.bottom; topMargin: vpx(8)
+            left: parent.left; right: parent.right
         }
 
-        width: parent.width
+        //width: parent.width
 
-        opacity: 0.2
+        opacity: 1
         visible: settings.AlwaysShowTitles === "Yes" && !selected
     }
 
@@ -263,5 +251,7 @@ id: root
             sfxNav.play();
             activated();
         }
+        
+        
     }
 }

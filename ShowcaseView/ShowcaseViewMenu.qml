@@ -38,6 +38,13 @@ id: root
     ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub }
     ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre }
 
+    ListCollectionGames { id: list; }
+    GridSpacer {
+    id: fakebox
+        width: vpx(100); height: vpx(100)
+        games: list.games
+    }
+
     property var featuredCollection: listFavorites
     property var collection1: getCollection(settings.ShowcaseCollection1, settings.ShowcaseCollection1_Thumbnail)
     property var collection2: getCollection(settings.ShowcaseCollection2, settings.ShowcaseCollection2_Thumbnail)
@@ -48,11 +55,16 @@ id: root
     function getCollection(collectionName, collectionThumbnail) {
         var collection = {
             enabled: true,
+            showBoxes: collectionThumbnail === "Box Art"
         };
 
         var width = root.width - globalMargin * 2;
 
         switch (collectionThumbnail) {
+            case "Box Art":
+                collection.itemWidth = (width / 8.0);
+                collection.itemHeight = collection.itemWidth * (fakebox.paintedHeight / fakebox.paintedWidth);
+                break;
             case "Square":
                 collection.itemWidth = (width / 6.0);
                 collection.itemHeight = collection.itemWidth;
@@ -60,16 +72,15 @@ id: root
             case "Tall":
                 collection.itemWidth = (width / 8.0);
                 collection.itemHeight = collection.itemWidth / settings.TallRatio;
-                break;
+                break;     
             case "Wide":
             default:
                 collection.itemWidth = (width / 4.0);
                 collection.itemHeight = collection.itemWidth * settings.WideRatio;
                 break;
-            
         }
 
-        collection.height = collection.itemHeight + vpx(40) + globalMargin
+        collection.height = collection.itemHeight + vpx(70) + globalMargin
 
         switch (collectionName) {
             case "Favorites":
@@ -322,7 +333,7 @@ id: root
             property bool selected: ListView.isCurrentItem
             focus: selected
             width: parent.width
-            height: vpx(360)
+            height: vpx(250)
             spacing: vpx(0)
             orientation: ListView.Horizontal
             clip: true
@@ -348,8 +359,8 @@ id: root
                     property bool selected: ListView.isCurrentItem && featuredlist.focus
                     width: featuredlist.width
                     height: featuredlist.height
-                    source: Utils.fanArt(modelData);
-                    //sourceSize { width: featuredlist.width; height: featuredlist.height }
+                    source: Utils.fanArt(modelData)
+                    //sourceSize: { width: featuredlist.width; height: featuredlist.height }
                     fillMode: Image.PreserveAspectCrop
                     asynchronous: true
                         
@@ -446,10 +457,11 @@ id: root
             width: root.width
             height: vpx(100) + globalMargin * 2
             anchors {
-                left: parent.left; leftMargin: globalMargin
+                left: parent.left; leftMargin: globalMargin - vpx(8)
                 right: parent.right; rightMargin: globalMargin
             }
-            spacing: vpx(10)
+
+            spacing: vpx(12)
             orientation: ListView.Horizontal
             preferredHighlightBegin: vpx(0)
             preferredHighlightEnd: parent.width - vpx(60)
@@ -477,7 +489,7 @@ id: root
                 height: width * settings.WideRatio
 				radius: vpx(4)
                 color: selected ? theme.accent : theme.secondary
-                scale: selected ? 1.05 : 1
+                scale: selected ? 1.1 : 1
                 Behavior on scale { NumberAnimation { duration: 100 } }
                 border.width: vpx(1)
                 border.color: "#19FFFFFF"
@@ -560,6 +572,8 @@ id: root
             property bool selected: ListView.isCurrentItem
             property var currentList: list1
             property var collection: collection1
+            property bool showBoxes: collection.showBoxes
+            
 
             enabled: collection.enabled
             visible: collection.enabled
@@ -588,6 +602,8 @@ id: root
             property bool selected: ListView.isCurrentItem
             property var currentList: list2
             property var collection: collection2
+            property bool showBoxes: collection.showBoxes
+            //property alias fakebox: fakebox
 
             enabled: collection.enabled
             visible: collection.enabled
@@ -616,6 +632,7 @@ id: root
             property bool selected: ListView.isCurrentItem
             property var currentList: list3
             property var collection: collection3
+            property bool showBoxes: collection.showBoxes
 
             enabled: collection.enabled
             visible: collection.enabled
@@ -644,6 +661,7 @@ id: root
             property bool selected: ListView.isCurrentItem
             property var currentList: list4
             property var collection: collection4
+            property bool showBoxes: collection.showBoxes
 
             enabled: collection.enabled
             visible: collection.enabled
@@ -672,6 +690,7 @@ id: root
             property bool selected: ListView.isCurrentItem
             property var currentList: list5
             property var collection: collection5
+            property bool showBoxes: collection.showBoxes
 
             enabled: collection.enabled
             visible: collection.enabled

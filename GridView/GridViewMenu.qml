@@ -137,7 +137,7 @@ id: root
     // Load settings
     property bool showBoxes: settings.GridThumbnail === "Box Art"
     property int numColumns: settings.GridColumns ? settings.GridColumns : 6
-    property int titleMargin: settings.AlwaysShowTitles === "Yes" ? vpx(30) : 0
+    property int titleMargin: vpx(50)   // 需要给boder的文字留空间 settings.AlwaysShowTitles === "Yes" ? vpx(50) : 0
 
     GridSpacer {
     id: fakebox
@@ -226,7 +226,6 @@ id: root
                     return cellWidth * settings.WideRatio;
                 }
             }
-            property var sourceThumbnail: showBoxes ? "BoxArtGridItem.qml" : "../Global/DynamicGridItem.qml"
 
             Component.onCompleted: {
                 currentIndex = storedCollectionGameIndex;
@@ -251,16 +250,15 @@ id: root
             keyNavigationWraps: false
             displayMarginBeginning: cellHeight * 2
             displayMarginEnd: cellHeight * 2
-
+            
             model: list.games
-            delegate: (showBoxes) ? boxartdelegate : dynamicDelegate
+            delegate: (showBoxes) ? boxartDelegate : dynamicDelegate
 
             Component {
-            id: boxartdelegate
+            id: boxartDelegate
 
                 BoxArtGridItem {
                     selected: GridView.isCurrentItem && root.focus
-                    gameData: modelData
 
                     width:      GridView.view.cellWidth
                     height:     GridView.view.cellHeight - titleMargin
@@ -290,7 +288,6 @@ id: root
             id: dynamicDelegate
 
                 DynamicGridItem {
-                id: dynamicdelegatecontainer
 
                     selected: GridView.isCurrentItem && root.focus
 

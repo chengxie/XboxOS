@@ -52,7 +52,7 @@ id: root
 
     property bool selected
     Behavior on scale { NumberAnimation { duration: 100 } }
-    property var gameData
+    property var gameData: modelData
     property int columns: 6
 
     scale: selected ? 1.1 : 1
@@ -77,7 +77,8 @@ id: root
             asynchronous: true
             source: boxArt(gameData)
             sourceSize { width: root.width; height: root.height }
-            fillMode: Image.PreserveAspectFit
+            fillMode: Image.PreserveAspectCrop
+            //fillMode: Image.PreserveAspectFit
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
 
@@ -147,8 +148,8 @@ id: root
         color: theme.text
         font {
             family: subtitleFont.name
-            pixelSize: vpx(12)
-            bold: true
+            pixelSize: vpx(16)
+            bold: false
         }
 
         elide: Text.ElideRight
@@ -160,7 +161,7 @@ id: root
             left: parent.left; right: parent.right
         }
 
-        opacity: 0.5
+        opacity: 1
         visible: settings.AlwaysShowTitles === "Yes" && !selected
     }
 

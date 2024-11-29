@@ -17,6 +17,7 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.11
 import "../Lists"
+import "../GridView"
 
 FocusScope {
 id: root
@@ -45,7 +46,7 @@ id: root
         font.bold: true
         color: theme.text
         opacity: root.focus ? 1 : 0.2
-        anchors { left: parent.left; leftMargin: vpx(10) }
+        anchors { left: parent.left; leftMargin: vpx(0) }
     }
 
     ListView {
@@ -54,11 +55,11 @@ id: root
         focus: root.focus
         anchors {
             top: collectiontitle.bottom; topMargin: vpx(10)
-            left: parent.left; 
+            left: parent.left; leftMargin: showBoxes ? vpx(-6) : vpx(0)
             right: parent.right;
             bottom: parent.bottom
         }
-        spacing: vpx(5)
+        spacing: showBoxes ? vpx(0) : vpx(16)
         orientation: ListView.Horizontal
         preferredHighlightBegin: vpx(0)
         preferredHighlightEnd: parent.width - vpx(60)
@@ -84,24 +85,57 @@ id: root
         Component.onCompleted: positionViewAtIndex(savedIndex, ListView.Visible)
 
         model: search.games ? search.games : api.allGames
-        delegate: DynamicGridItem {
-            selected: ListView.isCurrentItem && collectionList.focus
-            width: itemWidth
-            height: itemHeight
-            
-            onHighlighted: {
-                collectionList.savedIndex = index;
-                collectionList.currentIndex = index;
-                listHighlighted();
-            }
 
-            onActivated: {
-                if (selected) {
-                    activateSelected();
-                    gameDetails(search.currentGame(currentIndex));
-                } else {
-                    activate(index);
+        delegate: showBoxes ? boxartDelegate : dynamicDelegate
+
+        Component {
+        id: boxartDelegate
+
+            BoxArtGridItem {
+                selected: ListView.isCurrentItem && collectionList.focus
+                width: itemWidth
+                height: itemHeight
+                
+                onHighlighted: {
+                    collectionList.savedIndex = index;
                     collectionList.currentIndex = index;
+                    listHighlighted();
+                }
+
+                onActivate: {
+                    if (selected) {
+                        activateSelected();
+                        gameDetails(search.currentGame(currentIndex));
+                    } else {
+                        activate(index);
+                        collectionList.currentIndex = index;
+                    }
+                }
+            }
+        }
+
+        Component {
+        id: dynamicDelegate
+
+            DynamicGridItem {
+                selected: ListView.isCurrentItem && collectionList.focus
+                width: itemWidth
+                height: itemHeight
+                
+                onHighlighted: {
+                    collectionList.savedIndex = index;
+                    collectionList.currentIndex = index;
+                    listHighlighted();
+                }
+
+                onActivated: {
+                    if (selected) {
+                        activateSelected();
+                        gameDetails(search.currentGame(currentIndex));
+                    } else {
+                        activate(index);
+                        collectionList.currentIndex = index;
+                    }
                 }
             }
         }
@@ -114,6 +148,7 @@ id: root
                 height: collectionList.cellHeight
                 game: search ? search.currentGame(collectionList.currentIndex) : ""
                 selected: collectionList.focus
+                boxArt: showBoxes
             }
         }
 

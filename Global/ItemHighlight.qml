@@ -44,7 +44,7 @@ id: root
     Timer {
     id: videoDelay
 
-        interval: 600
+        interval: 100
         onTriggered: {
             if (game && game.assets.videos.length) {
                 videoPreviewLoader.sourceComponent = videoPreviewWrapper;
@@ -100,6 +100,7 @@ id: root
     id: videocontainer
 
         anchors.fill: parent
+        scale: selected ? 1.1 : 1
 
         // Video
         Loader {
