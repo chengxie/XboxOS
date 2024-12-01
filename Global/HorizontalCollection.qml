@@ -32,6 +32,7 @@ id: root
     property alias delegate: collectionList.delegate
     property alias collectionList: collectionList
     property var search
+    property bool showBoxes: false
 
     signal activate(int activeIndex)
     signal activateSelected
