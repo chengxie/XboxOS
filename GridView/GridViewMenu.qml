@@ -240,6 +240,7 @@ id: root
                 top: parent.top; left: parent.left; right: parent.right;
                 bottom: parent.bottom; bottomMargin: helpMargin + vpx(40)
             }
+
             cellWidth: width / numColumns
             cellHeight: ((showBoxes) ? cellWidth * cellHeightRatio : savedCellHeight) + titleMargin
             preferredHighlightBegin: vpx(0)
@@ -260,8 +261,8 @@ id: root
                 BoxArtGridItem {
                     selected: GridView.isCurrentItem && root.focus
 
-                    width:      GridView.view.cellWidth
-                    height:     GridView.view.cellHeight - titleMargin
+                    width:      GridView.view.cellWidth - vpx(14)
+                    height:     GridView.view.cellHeight - titleMargin - vpx(8)
                     
                     onActivate: {
                         if (selected)

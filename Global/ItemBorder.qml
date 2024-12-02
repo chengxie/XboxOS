@@ -70,7 +70,7 @@ id: root
         height: bubbletitle.contentHeight + vpx(8)
         color: theme.secondary
         anchors {
-            top: border.bottom; topMargin: vpx(7)
+            top: border.bottom; topMargin: vpx(5)
         }
         anchors.horizontalCenter: parent.horizontalCenter
         radius: height/2

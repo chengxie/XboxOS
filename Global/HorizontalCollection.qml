@@ -22,15 +22,16 @@ import "../GridView"
 FocusScope {
 id: root
 
+    property var collection
     property var collectionData
     property int itemWidth: vpx(150)
     property int itemHeight: itemWidth*1.5
+    property alias collectionList: collectionList
     property alias currentIndex: collectionList.currentIndex
     property alias savedIndex: collectionList.savedIndex
     property alias title: collectiontitle.text
     property alias model: collectionList.model
     property alias delegate: collectionList.delegate
-    property alias collectionList: collectionList
     property var search
     property bool showBoxes: false
 
@@ -47,7 +48,7 @@ id: root
         font.bold: true
         color: theme.text
         opacity: root.focus ? 1 : 0.2
-        anchors { left: parent.left; leftMargin: vpx(0) }
+        anchors { left: parent.left; leftMargin: globalMargin; }
     }
 
     ListView {
@@ -56,20 +57,21 @@ id: root
         focus: root.focus
         anchors {
             top: collectiontitle.bottom; topMargin: vpx(10)
-            left: parent.left; leftMargin: showBoxes ? vpx(-6) : vpx(0)
-            right: parent.right;
+            left: parent.left
+            right: parent.right
             bottom: parent.bottom
         }
-        spacing: showBoxes ? vpx(0) : vpx(16)
-        orientation: ListView.Horizontal
-        preferredHighlightBegin: vpx(0)
-        preferredHighlightEnd: parent.width - vpx(60)
-        highlightRangeMode: ListView.ApplyRange
+        spacing: vpx(12)
+
         snapMode: ListView.SnapOneItem 
-        highlightMoveDuration: 100
+        orientation: ListView.Horizontal
+		preferredHighlightBegin: globalMargin
+		preferredHighlightEnd: parent.width - globalMargin
+		highlightRangeMode: ListView.StrictlyEnforceRange //ApplyRange
+		highlightMoveDuration: 100
         highlight: highlightcomponent
-        displayMarginEnd: itemWidth*2
         keyNavigationWraps: true
+        //displayMarginEnd: itemWidth*2
         
         property int savedIndex: 0
         onFocusChanged: {

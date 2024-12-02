@@ -25,9 +25,11 @@ id: root
         var str = gameData.assets.boxFront.split("header");
         return str[0];
     }
+
     function steamBoxArt(gameData) {
         return steamAppID(gameData) + '/library_600x900_2x.jpg';
     }
+
     function boxArt(data) {
         if (data != null) {
             if (data.assets.boxFront.includes("/header.jpg")) 
@@ -61,18 +63,17 @@ id: root
     signal activate()
     signal highlighted()
 
-    Item 
-    {
+    Item {
     id: container
 
         anchors.fill: parent
-        anchors.margins: vpx(6)
+        //anchors.margins: vpx(6)
         Behavior on opacity { NumberAnimation { duration: 200 } }
                        
         Image {
         id: screenshot
             anchors.fill: parent
-            anchors.margins: vpx(2)
+            //anchors.margins: vpx(2)
 
             asynchronous: true
             source: boxArt(gameData)
