@@ -275,7 +275,7 @@ id: root
                     }
                     Keys.onPressed: {
                         // Toggle favorite
-                        if (api.keys.isDetails(event) && !event.isAutoRepeat) {
+                        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
                             event.accepted = true;
                             sfxToggle.play();
                             modelData.favorite = !modelData.favorite;
@@ -308,7 +308,7 @@ id: root
                     }
                     Keys.onPressed: {
                         // Toggle favorite
-                        if (api.keys.isDetails(event) && !event.isAutoRepeat) {
+                        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
                             event.accepted = true;
                             sfxToggle.play();
                             modelData.favorite = !modelData.favorite;
@@ -387,7 +387,7 @@ id: root
         }
 
         // Details
-        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
+        if (api.keys.isDetails(event) && !event.isAutoRepeat) {
             event.accepted = true;
             sfxToggle.play();
             cycleSort();

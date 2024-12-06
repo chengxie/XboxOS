@@ -31,9 +31,9 @@ import "utils.js" as Utils
 FocusScope {
 id: root
 
-    FontLoader { id: titleFont; source:      "assets/fonts/SegoeProDisplay-Bold.ttf" }
-    FontLoader { id: subtitleFont; source:   "assets/fonts/SegoeProDisplay-Bold.ttf" }
-    FontLoader { id: bodyFont; source:       "assets/fonts/SegoeProDisplay-Semibold.ttf" }
+    FontLoader { id: titleFont; source:      "assets/fonts/YaHei-Bold.ttf" }
+    FontLoader { id: subtitleFont; source:   "assets/fonts/YaHei-Bold.ttf" }
+    FontLoader { id: bodyFont; source:       "assets/fonts/YaHei.ttf" }
 
     // Pull in our custom lists and define
     ListAllGames    { id: listNone;        max: 0 }

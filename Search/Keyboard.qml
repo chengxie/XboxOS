@@ -7,54 +7,6 @@ id: root
 	
 	property int virtualKeyboardIndex: 0
 
-	//Rectangle {
-	//id: searchInputRow
-		//width: parent.width
-		//height: vpx(40)
-		//anchors {
-			//top: parent.top
-			//left: parent.left
-		//}
-		//color: "#171717"
-
-		//Image {
-		//id: searchIcon
-			//source: "../assets/images/key/search.svg"
-			//width: height
-			//height: vpx(30)
-			//anchors {
-				//left: parent.left; leftMargin: vpx(5)
-				//verticalCenter: parent.verticalCenter
-				////rightMargin: vpx(5)
-			//}
-			////visible: searchInput.text.trim().length > 0
-
-			//Behavior on opacity {
-				//NumberAnimation { duration: 200 }
-			//}
-		//}
-
-		//TextInput {
-		//id: searchInput
-			//color: "white"
-			//focus: false
-			//anchors {
-				//verticalCenter: parent.verticalCenter
-				//left: searchIcon.right; leftMargin: vpx(5)
-				//right: parent.right
-			//}
-			//maximumLength:9
-			//font.family: subtitleFont.name
-			//font.pixelSize: 24
-			//verticalAlignment: TextInput.AlignBottom
-			//onTextChanged: {
-				////gamesFiltered.searchTerm = text.trim();
-				//searchText = text.trim();
-			//}
-		//}
-	//}
-
-
 	Rectangle {
 	id: buttonKeyContainer
 		anchors {

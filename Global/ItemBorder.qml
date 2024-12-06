@@ -97,6 +97,7 @@ id: root
 
 	Text {
 	id: bubbletitle
+		visible: showTitle
 		anchors.top: border.bottom;
 		text: modelData.title
 		color: theme.text

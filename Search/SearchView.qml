@@ -3,30 +3,36 @@ import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.12
 import SortFilterProxyModel 0.2
 import "../Global"
-import "../GridView"
+import "../Lists"
 
 
 FocusScope {
 id: root
+	
+	property var collection: api.allGames 
 	property alias searchText: searchInput.text
+	property alias gamesFiltered: searchAllGames.games
 
-
-    SortFilterProxyModel {
-        id: gamesFiltered
-        sourceModel: api.allGames
-        property string searchTerm: ""
-
-        filters: [
-            RegExpFilter {
-                roleName: "title";
-                pattern: "^" + gamesFiltered.searchTerm.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ".+";
-                caseSensitivity: Qt.CaseInsensitive;
-                enabled: gamesFiltered.searchTerm !== "";
-            }
-        ]
-
-        property bool hasResults: count > 0
-    }
+	Item {
+	id: searchAllGames
+		property alias games: gamesFiltered
+		function currentGame(index) { return collection.get(gamesFiltered.mapToSource(index)) }
+		property int max: gamesFiltered.count
+		SortFilterProxyModel {
+		id: gamesFiltered
+			sourceModel: api.allGames
+			property string searchTerm: ""
+			property bool hasResults: count > 0
+			filters: [
+				RegExpFilter {
+					roleName: "title";
+					pattern: "^" + gamesFiltered.searchTerm.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ".+";
+					caseSensitivity: Qt.CaseInsensitive;
+					enabled: gamesFiltered.searchTerm !== "";
+				}
+			]
+		}
+	}
 
     Rectangle {
     id: header
@@ -121,72 +127,16 @@ id: root
 		}
 
 
-        GridView {
+		GridViewBox {
         id: resultsGrid
-
-			GridSpacer {
-				id: fakebox
-				width: vpx(100); height: vpx(100)
-				games: listRecommended.games
-			}
-
-            property real cellHeightRatio: fakebox.paintedHeight / fakebox.paintedWidth
-            property real savedCellHeight: cellWidth * settings.WideRatio
-			property int numColumns: 5
-
             anchors {
                 top: searchBar.bottom;
                 bottom: parent.bottom; bottomMargin: helpMargin + vpx(40)
             }
 			width: parent.width
-	
-            cellWidth: width / numColumns
-            cellHeight: (cellWidth) * cellHeightRatio + vpx(40)
-
-            preferredHighlightBegin: vpx(0)
-            preferredHighlightEnd: resultsGrid.height - helpMargin - vpx(35)
-            highlightRangeMode: GridView.StrictlyEnforceRange
-            highlightMoveDuration: 200
-            highlight: highlightcomponent
-            keyNavigationWraps: false
-			displayMarginBeginning: cellHeight * 2
-			displayMarginEnd: cellHeight * 2
-
-            Component.onCompleted: {
-				currentIndex = 0
-                positionViewAtIndex(currentIndex, GridView.Visible);
-            }
- 
-            model: searchText.length === 0 ? listRecommended.games : gamesFiltered
-            delegate: BoxArtGridItem {
-				selected:	GridView.isCurrentItem && resultsGrid.focus
-				width:      GridView.view.cellWidth
-				height:     GridView.view.cellHeight
-				verticalSpacing: vpx(40)
-				horizontalSpacing: vpx(12)
-				showTitle: settings.AlwaysShowTitles === "Yes"
-				onActivate: {
-					if (selected) {
-						gameDetails(modelData);
-					} else {
-						resultsGrid.currentIndex = index;
-					}
-				}
-				onHighlighted: {
-					resultsGrid.currentIndex = index;
-				}
-			}
-
-            Component {
-            id: highlightcomponent
-
-                ItemHighlight {
-                    width: resultsGrid.cellWidth
-                    height: resultsGrid.cellHeight
-                    selected: resultsGrid.focus
-                    boxArt: true
-                }
-            }
+			numColumns: 5
+			showBoxes: true
+            gameList: searchText.length === 0 ? listRecommended : searchAllGames
 
 			Rectangle {
 				anchors.fill: parent
@@ -203,27 +153,10 @@ id: root
 				}
 			}
 
-			Keys.onDownPressed: {
-				sfxNav.play();
-				moveCurrentIndexDown()
-			}
-
-			Keys.onUpPressed: {
-				sfxNav.play();
-				moveCurrentIndexUp()
-			}
-
-			Keys.onRightPressed: {
-				sfxNav.play();
-				moveCurrentIndexRight()
-			}
-
 			Keys.onLeftPressed: {
-				sfxNav.play();
-				if (resultsGrid.currentIndex % numColumns === 0) {
+				if (currentIndex % numColumns === 0) {
+					sfxNav.play();
 					keyboard.focus = true;
-				} else {
-					moveCurrentIndexLeft()
 				}
 			}
 

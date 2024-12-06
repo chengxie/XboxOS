@@ -10,6 +10,7 @@ id: root
 	//anchors.fill: parent
 
     signal activateSelected
+    signal listHighlighted
 
 	ListView {
 	id: platformList
@@ -42,6 +43,7 @@ id: root
 
 		model: collection.platforms
 		delegate: Rectangle {
+			signal highlighted
 			property bool selected: ListView.isCurrentItem && platformList.focus
 			width: (root.width - globalMargin * 2) / 7.0
 			height: width *	0.5 //	settings.WideRatio
@@ -50,7 +52,10 @@ id: root
 			scale: selected ? 1.1 : 1
 			Behavior on scale { NumberAnimation { duration: 100 } }
 
-			//anchors.verticalCenter: parent.verticalCenter
+			onHighlighted: {
+				listHighlighted();
+				platformList.currentIndex = index;
+			}
 
 			Image {
 			id: collectionlogo
@@ -58,13 +63,13 @@ id: root
 				anchors.fill: parent
 				anchors.centerIn: parent
 				anchors.margins: vpx(15)
-				source: "../assets/images/logospng/" + Utils.processPlatformName(modelData.shortName) + ".png"
-				//source: "../assets/icons/" + Utils.processPlatformName(modelData.shortName) + ".png"
+				//source: "../assets/images/logospng/" + Utils.processPlatformName(modelData.shortName) + ".png"
+				source: "../assets/icons/" + Utils.processPlatformName(modelData.shortName) + ".png"
 				sourceSize { width: 256; height: 128 }
 				fillMode: Image.PreserveAspectFit
 				asynchronous: true
 				smooth: true
-				opacity: selected ? 1 : 0.5//0.2
+				opacity: selected ? 1 : 0.5
 				scale: selected ? 1.1 : 1
 				Behavior on scale { NumberAnimation { duration: 100 } }
 			}
@@ -75,9 +80,10 @@ id: root
 				text: modelData.name
 				anchors { fill: parent; margins: vpx(10) }
 				color: theme.text
-				opacity: selected ? 1 : 0.5//0.2
-				scale: selected ? 1.1 : 1
+				opacity: selected ? 1 : 0.5
 				Behavior on opacity { NumberAnimation { duration: 100 } }
+				scale: selected ? 1.1 : 1
+				Behavior on scale { NumberAnimation { duration: 100 } }
 				font.pixelSize: vpx(18)
 				font.family: subtitleFont.name
 				font.bold: true
@@ -89,7 +95,6 @@ id: root
 				lineHeight: 0.8
 				horizontalAlignment: Text.AlignHCenter
 				verticalAlignment: Text.AlignVCenter
-				Behavior on scale { NumberAnimation { duration: 100 } }
 			}
 
 			Rectangle {
@@ -107,11 +112,9 @@ id: root
 			MouseArea {
 				anchors.fill: parent
 				hoverEnabled: settings.MouseHover == "Yes"
-				onEntered: { sfxNav.play(); mainList.currentIndex = platformList.ObjectModel.index; platformList.savedIndex = index; platformList.currentIndex = index; }
-				onExited: {}
+				onEntered: { sfxNav.play(); highlighted(); }
 				onClicked: {
-					if (selected)
-					{
+					if (selected) {
 						currentCollectionIndex = index;
 						softwareScreen();
 					} else {
