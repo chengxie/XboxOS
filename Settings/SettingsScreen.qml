@@ -179,10 +179,6 @@ id: root
             setting: "Show,Text only,Hide"
         }
         ListElement {
-            settingName: "Default to full details"
-            setting: "No,Yes"
-        }
-        ListElement {
             settingName: "Video preview"
             setting: "Yes,No"
         }

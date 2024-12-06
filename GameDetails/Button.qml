@@ -39,7 +39,7 @@ id: root
         radius: height/2
         border.width: selected ? 0 : 2
         border.color: "white"
-        opacity: selected ? 1 : 0.2
+        opacity: selected ? 1 : 0.5
         
         Image {
         id: buttonicon

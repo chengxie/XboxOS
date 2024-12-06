@@ -54,7 +54,7 @@ id: infocontainer
             left: parent.left
             right: parent.right
         }
-
+/*
         // Rating box
         Text {
         id: ratingtitle
@@ -94,16 +94,17 @@ id: infocontainer
             }
             opacity: 0.2
         }
-
+*/
         // Players box
         Text {
-        id: playerstitle
+        id: publisherTitle
 
             width: contentWidth
             height: parent.height
-            anchors { left: divider1.right; leftMargin: vpx(25) }
+            //anchors { left: divider1.right; leftMargin: vpx(25) }
+            anchors { left: parent.left }
             verticalAlignment: Text.AlignVCenter
-            text: "Players: "
+            text: "Publisher: "
             font.pixelSize: vpx(16)
             font.family: subtitleFont.name
             font.bold: true
@@ -111,13 +112,14 @@ id: infocontainer
         }
 
         Text {
-        id: playerstext
+        id: publisherText
 
             width: contentWidth
             height: parent.height
-            anchors { left: playerstitle.right; leftMargin: vpx(5) }
+            anchors { left: publisherTitle.right; leftMargin: vpx(5) }
             verticalAlignment: Text.AlignVCenter
-            text: gameData ? gameData.players : ""
+            //text: gameData ? gameData.players : ""
+            text: gameData ? gameData.publisher : ""
             font.pixelSize: vpx(16)
             font.family: subtitleFont.name
             color: theme.text
@@ -127,7 +129,7 @@ id: infocontainer
         id: divider2
             width: vpx(2)
             anchors {
-                left: playerstext.right; leftMargin: (25)
+                left: publisherText.right; leftMargin: (25)
                 top: parent.top; topMargin: vpx(10)
                 bottom: parent.bottom; bottomMargin: vpx(10)
             }
@@ -182,7 +184,7 @@ id: infocontainer
         Text {
             width: parent.width
             text: gameData && (gameData.summary || gameData.description) ? gameData.description || gameData.summary : "No description available"
-            font.pixelSize: vpx(16)
+            font.pixelSize: vpx(20)
             font.family: bodyFont.name
             color: theme.text
             elide: Text.ElideRight

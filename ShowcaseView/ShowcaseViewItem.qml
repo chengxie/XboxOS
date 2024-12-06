@@ -5,8 +5,9 @@ import "../Lists"
 FocusScope {
 id: root
 
+	//ListView model传入的数据
 	property var collection
-	property var objModel
+
 	property bool selected: ListView.isCurrentItem
 
     // 动态加载器
@@ -14,17 +15,18 @@ id: root
         id: dynamicLoader
 		anchors.fill: parent
 		focus: parent.selected
+		asynchronous: true
 
 		// 根据条件切换子组件
 		sourceComponent: { 
 			if (collection instanceof ListFavorites) { 
-				parent.height = vpx(530) //vpx(410)
+				parent.height = vpx(480) //vpx(410)
 				return featuredComponent
 			} else if (collection instanceof ListPlatforms) {
-				parent.height = vpx(140)
+				parent.height = vpx(120)
 				return platformComponent
 			}
-			parent.height = collection.height
+			parent.height = collection.height 
 			return collectionComponent  
 		}
 
@@ -37,8 +39,8 @@ id: root
 		FeaturedList {
 			focus: root.selected
 			collection: root.collection
-			componentHeight: root.height
-			componentBottom: root.bottom
+            height: root.height
+			modelIndex: index
 		}
 	}
 
@@ -49,10 +51,11 @@ id: root
 		PlatformList {
 			focus: root.selected
 			collection: root.collection
-			componentHeight: root.height
-			componentBottom: root.bottom
+            height: root.height
+			modelIndex: index
 		}
 	}
+
 
 	// 各种过滤后的游戏列表
 	Component {
@@ -61,11 +64,8 @@ id: root
 		HorizontalCollection {
 		id: horizontalCollection
 
-			property var currentList: collectionList
-			property var selected: root.selected
 			anchors.fill: parent
-            focus: selected
-            collectionData: root.collection
+            focus: root.selected
             collection: root.collection
             enabled: collection.enabled
             visible: collection.enabled
@@ -75,11 +75,14 @@ id: root
             title: collection.title
             search: collection.search
             showBoxes: collection.showBoxes
-			savedIndex: (storedHomePrimaryIndex === root.objModel.index) ? storedHomeSecondaryIndex : 0
-			onActivateSelected: storedHomeSecondaryIndex = currentIndex;
-			onActivate: { if (!selected) { mainList.currentIndex = root.objModel.index; } }
-			onListHighlighted: { sfxNav.play(); mainList.currentIndex = root.objModel.index; }
-
+			onActivateSelected: {
+				storedHomeSecondaryIndex = currentIndex;
+				gameDetails(search.currentGame(currentIndex));
+				console.log("onActivateSelected, storedHomeSecondaryIndex: " + storedHomeSecondaryIndex);
+			}
+			onListHighlighted: {
+				mainList.currentIndex = index;
+			}
 		}
 	}
 

@@ -43,9 +43,8 @@ id: root
         return "";
     }
 
-    signal activated
+    signal activate
     signal highlighted
-    signal unhighlighted
 
     property bool selected
     property var gameData: modelData
@@ -237,7 +236,7 @@ id: root
         // Accept
         if (api.keys.isAccept(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            activated();        
+            activate();        
         }
     }
 
@@ -246,10 +245,9 @@ id: root
         anchors.fill: parent
         hoverEnabled: settings.MouseHover == "Yes"
         onEntered: { sfxNav.play(); highlighted(); }
-        onExited: { unhighlighted(); }
         onClicked: {
             sfxNav.play();
-            activated();
+            activate();
         }
         
         

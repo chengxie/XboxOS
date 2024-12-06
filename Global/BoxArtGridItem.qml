@@ -60,8 +60,8 @@ id: root
     scale: selected ? 1.1 : 1
     z: selected ? 10 : 1
 
-    signal activate()
-    signal highlighted()
+    signal activate
+    signal highlighted
 
     Item {
     id: container
@@ -111,8 +111,8 @@ id: root
             color: "transparent"
             border.width: vpx(1)
             border.color: "white"
-            opacity: 0.1
-            visible: false
+            opacity: 0.2
+            visible: true
         }
 
         Rectangle {

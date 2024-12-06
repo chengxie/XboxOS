@@ -11,8 +11,7 @@ FocusScope {
 id: root
 
 	property var collection
-	property real componentHeight
-	property var componentBottom
+	property int modelIndex: 0
     property bool ftue: collection.games.count == 0
     property real gameVideoRatio: 0.75
     property real gameVideoWidth: root.width * 0.75
@@ -21,7 +20,8 @@ id: root
     property alias featuredList: featuredList
 
     anchors.fill: parent
-	height: parent.height
+	//height: gameVideoHeight // parent.height //
+	//signal activate
 
     Item {
     id: ftueContainer
@@ -77,7 +77,6 @@ id: root
             muted: true
             loops: MediaPlayer.Infinite
             autoPlay: true
-
             OpacityAnimator {
                 target: videocomponent;
                 from: 0;
@@ -124,21 +123,21 @@ id: root
 	id: featuredList
 
 		focus: root.focus
-
-		width: parent.width
-		height: gameVideoHeight
-		spacing: vpx(0)
+		anchors.fill: parent
+		//width: parent.width
+		//height: gameVideoHeight
 		orientation: ListView.Horizontal
-		//clip: true
 		preferredHighlightBegin: vpx(0)
 		preferredHighlightEnd: parent.width
 		highlightRangeMode: ListView.StrictlyEnforceRange
 		highlightMoveDuration: 200
-		//highlightMoveVelocity: -1
 		snapMode: ListView.SnapOneItem
 		keyNavigationWraps: true
+
 		currentIndex: (storedHomePrimaryIndex == 0) ? storedHomeSecondaryIndex : 0
-		Component.onCompleted: positionViewAtIndex(currentIndex, ListView.Visible)
+		Component.onCompleted: {
+			positionViewAtIndex(currentIndex, ListView.Visible)
+		}
 
 		model: !ftue ? collection.games : null
 		delegate: featuredDelegate
@@ -147,28 +146,106 @@ id: root
 		id: featuredDelegate
 
 			Item {
+			id: featuredItem
 				property var game: modelData
-	
 				width: featuredList.width
 				height: featuredList.height
+				
+				Video {
+				id: vid
+					property bool videoExists: game ? game.assets.videoList.length : false
+					source: videoExists ? game.assets.videoList[0] : ""
+
+					width: gameVideoWidth
+					height: gameVideoHeight
+					anchors {
+						//top: parent.top; topMargin: root.height * 0.1
+						bottom: parent.bottom; bottomMargin: -vpx(5)
+						right: parent.right 
+					}
+
+					fillMode: VideoOutput.PreserveAspectCrop
+					muted: settings.AllowVideoPreviewAudio === "No"
+					loops: MediaPlayer.Infinite
+					autoLoad: true
+					autoPlay: true
+					opacity: featuredList.focus ? 1 : 0.3
+					Image {
+						anchors.fill: parent
+						source: "../assets/images/scanlines_v3.png"
+						fillMode: Image.Tile
+						opacity: 0.2
+						visible: settings.ShowScanlines == "Yes"
+					}
+				}
+
+				LinearGradient {
+					width: vid.width * 0.7
+					height: vid.height
+					anchors {
+						top: vid.top
+						left: vid.left;
+					}
+					start: Qt.point(0, 0)
+					end: Qt.point(width, 0)
+					gradient: Gradient {
+						GradientStop { position: -0.05; color: "#FF000000" }
+						GradientStop { position: 1.0; color: "#00000000" }
+					}
+				}
+
+				LinearGradient {
+					width: vid.width
+					height: vid.height * 0.1
+					anchors {
+						left: vid.left;
+						bottom: vid.bottom;
+					}
+					start: Qt.point(0, height)
+					end: Qt.point(0, 0)
+					gradient: Gradient {
+						GradientStop { position: -0.1; color: "#FF000000" }
+						GradientStop { position: 1.0; color: "#00000000" }
+					}
+				}
+
+
+
 
 				Image {
 				id: gameLogo
 					height: vpx(100)
 					anchors { 
-						top: parent.top; topMargin: root.height * 0.19
+						top: parent.top; topMargin: root.height * 0.1
 						left: parent.left; leftMargin: vpx(50) + (parent.width - vpx(100)) * 0.15 - width / 2
 					}
 					source: Utils.logo(game)
 					fillMode: Image.PreserveAspectFit
 					asynchronous: true
 					opacity: featuredList.focus ? 1 : 0.3
+
+					Component.onCompleted: {
+						logoAnim.start()
+					}
+
+					onSourceChanged: {
+						logoAnim.start()
+					}
+
+					PropertyAnimation { 
+					id: logoAnim; 
+						target: gameLogo; 
+						property: "y"; 
+						from: root.top - height; 
+						to: root.height * 0.19;
+						duration: 100
+					}
 				}
 
 				Text {
 				id: gameTitle
 
-					text: game && game.title
+					text: game && game.title 
 					anchors { 
 						top: gameLogo.bottom; topMargin: vpx(20)
 						horizontalCenter: gameLogo.horizontalCenter
@@ -193,7 +270,7 @@ id: root
 				id: gameDescription
 					text: (game && game.description) || "No description available"
 					width: (parent.width - vpx(200)) * 0.4
-					height: parent.height * 0.12
+					height: parent.height * 0.22
 
 					anchors {
 						top: gameTitle.bottom; topMargin: vpx(25)
@@ -297,69 +374,7 @@ id: root
 					}
 				}
 
-				// Video
-				Loader {
-				id: videoLoader
-					z: -10
 
-					asynchronous: true
-					width: gameVideoWidth
-					height: gameVideoHeight
-					anchors {
-						top: parent.top; topMargin: -gameVideoHeight*0.1
-						right: parent.right 
-					}
-					opacity: featuredList.focus ? 1 : 0.3
-
-					sourceComponent: Video {
-						property bool videoExists: game ? game.assets.videoList.length : false
-						source: videoExists ? game.assets.videoList[0] : ""
-						anchors.fill: parent
-						fillMode: VideoOutput.PreserveAspectCrop
-						muted: settings.AllowVideoPreviewAudio === "No"
-						loops: MediaPlayer.Infinite
-						autoPlay: true
-
-						Image {
-							anchors.fill: parent
-							source: "../assets/images/scanlines_v3.png"
-							fillMode: Image.Tile
-							opacity: 0.2
-						}
-					}
-				}
-
-
-				LinearGradient {
-					z: -9
-					width: videoLoader.width * 0.6
-					height: videoLoader.height
-					anchors {
-						left: videoLoader.left; leftMargin: -vpx(10)
-					}
-					start: Qt.point(0, 0)
-					end: Qt.point(width, 0)
-					gradient: Gradient {
-						GradientStop { position: 0.0; color: "#FF000000" }
-						GradientStop { position: 1.0; color: "#00000000" }
-					}
-				}
-
-				LinearGradient {
-					z: -9
-					width: videoLoader.width
-					height: videoLoader.height * 0.1
-					anchors {
-						left: videoLoader.left;
-						bottom: videoLoader.bottom;
-					}
-					start: Qt.point(0, height)
-					end: Qt.point(0, 0)
-					gradient: Gradient {
-						GradientStop { position: 0.0; color: "#FF000000" }
-						GradientStop { position: 1.0; color: "#00000000" }
-					}
-				}
 
 				// Mouse/touch functionality
 				MouseArea {

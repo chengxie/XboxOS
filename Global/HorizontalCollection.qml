@@ -21,28 +21,24 @@ import "../GridView"
 
 FocusScope {
 id: root
-
-    property var collection
-    property var collectionData
+	property var collection
+    property var search
     property int itemWidth: vpx(150)
     property int itemHeight: itemWidth*1.5
     property alias collectionList: collectionList
     property alias currentIndex: collectionList.currentIndex
-    property alias savedIndex: collectionList.savedIndex
     property alias title: collectiontitle.text
     property alias model: collectionList.model
     property alias delegate: collectionList.delegate
-    property var search
     property bool showBoxes: false
 
-    signal activate(int activeIndex)
     signal activateSelected
     signal listHighlighted
 
     Text {
     id: collectiontitle
 
-        text: collectionData.name
+        text: collection.name
         font.family: subtitleFont.name
         font.pixelSize: vpx(18)
         font.bold: true
@@ -53,6 +49,8 @@ id: root
 
     ListView {
     id: collectionList
+
+		//property var collection
 
         focus: root.focus
         anchors {
@@ -67,25 +65,28 @@ id: root
         orientation: ListView.Horizontal
 		preferredHighlightBegin: globalMargin
 		preferredHighlightEnd: parent.width - globalMargin
-		highlightRangeMode: ListView.StrictlyEnforceRange //ApplyRange
+		highlightRangeMode: ListView.StrictlyEnforceRange
 		highlightMoveDuration: 100
         highlight: highlightcomponent
         keyNavigationWraps: true
-        //displayMarginEnd: itemWidth*2
-        
-        property int savedIndex: 0
+
+        currentIndex: collection.index
+
         onFocusChanged: {
-            if (focus)
-                currentIndex = savedIndex;
-            else {
-                savedIndex = currentIndex;
-                currentIndex = -1;
+            if (focus) {
+                currentIndex = collection.index;
+			} else {
+                collection.index = currentIndex;
             }
-                
         }
 
-        currentIndex: focus ? savedIndex : -1
-        Component.onCompleted: positionViewAtIndex(savedIndex, ListView.Visible)
+		Component.onDestruction: {
+			collection.index = currentIndex;
+		}
+
+		Component.onCompleted: {
+			positionViewAtIndex(currentIndex, ListView.Visible)
+		}
 
         model: search.games ? search.games : api.allGames
 
@@ -98,22 +99,17 @@ id: root
                 selected: ListView.isCurrentItem && collectionList.focus
                 width: itemWidth
                 height: itemHeight
-                
-                onHighlighted: {
-                    collectionList.savedIndex = index;
-                    collectionList.currentIndex = index;
-                    listHighlighted();
-                }
-
-                onActivate: {
-                    if (selected) {
-                        activateSelected();
-                        gameDetails(search.currentGame(currentIndex));
-                    } else {
-                        activate(index);
-                        collectionList.currentIndex = index;
-                    }
-                }
+				onActivate: {
+					if (selected) {
+						activateSelected();
+					} else {
+						collectionList.currentIndex = index;
+					}
+				}
+				onHighlighted: {
+					listHighlighted();
+					collectionList.currentIndex = index;
+				}
             }
         }
 
@@ -125,21 +121,17 @@ id: root
                 width: itemWidth
                 height: itemHeight
                 
-                onHighlighted: {
-                    collectionList.savedIndex = index;
-                    collectionList.currentIndex = index;
-                    listHighlighted();
-                }
-
-                onActivated: {
+                onActivate: {
                     if (selected) {
                         activateSelected();
-                        gameDetails(search.currentGame(currentIndex));
                     } else {
-                        activate(index);
                         collectionList.currentIndex = index;
                     }
                 }
+				onHighlighted: {
+					listHighlighted();
+					collectionList.currentIndex = index;
+				}
             }
         }
 
@@ -155,8 +147,15 @@ id: root
             }
         }
 
-        Keys.onLeftPressed: { sfxNav.play(); collectionList.decrementCurrentIndex() }
-        Keys.onRightPressed: { sfxNav.play(); collectionList.incrementCurrentIndex() }
+		Keys.onLeftPressed: {
+			sfxNav.play();
+			collectionList.decrementCurrentIndex()
+		}
+		Keys.onRightPressed: {
+			sfxNav.play();
+			collectionList.incrementCurrentIndex()
+		}
+
     }
 
 }

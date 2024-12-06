@@ -24,6 +24,8 @@ import "Global"
 import "GameDetails"
 import "ShowcaseView"
 import "Settings"
+import "Lists"
+import "utils.js" as Utils
 
 FocusScope {
 id: root
@@ -31,6 +33,21 @@ id: root
     FontLoader { id: titleFont; source:      "assets/fonts/SegoeProDisplay-Bold.ttf" }
     FontLoader { id: subtitleFont; source:   "assets/fonts/SegoeProDisplay-Bold.ttf" }
     FontLoader { id: bodyFont; source:       "assets/fonts/SegoeProDisplay-Semibold.ttf" }
+
+    // Pull in our custom lists and define
+    ListAllGames    { id: listNone;        max: 0 }
+    ListAllGames    { id: listAllGames;    max: settings.ShowcaseColumns }
+    ListFavorites   { id: listFavorites;   max: settings.ShowcaseColumns }
+    ListLastPlayed  { id: listLastPlayed;  max: settings.ShowcaseColumns }
+    ListMostPlayed  { id: listMostPlayed;  max: settings.ShowcaseColumns }
+    ListRecommended { id: listRecommended; max: settings.ShowcaseColumns }
+    ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub }
+    ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre }
+	ListPlatforms	{ id: listPlatforms;   max: 0; property int index: -1 }
+	
+
+    property string randoPub: (Utils.returnRandom(Utils.uniqueValuesArray('publisher')) || '')
+    property string randoGenre: (Utils.returnRandom(Utils.uniqueValuesArray('genreList'))[0] || '').toLowerCase()
 
     // Load settings
     property var settings: {
@@ -54,7 +71,6 @@ id: root
             AnimateHighlight:              api.memory.has("Animate highlight") ? api.memory.get("Animate highlight") : "No",
             AllowVideoPreviewAudio:        api.memory.has("Video preview audio") ? api.memory.get("Video preview audio") : "No",
             ShowScanlines:                 api.memory.has("Show scanlines") ? api.memory.get("Show scanlines") : "Yes",
-            DetailsDefault:                api.memory.has("Default to full details") ? api.memory.get("Default to full details") : "No",
             ShowcaseColumns:               api.memory.has("Number of games showcased") ? api.memory.get("Number of games showcased") : "15",
             ShowcaseFeaturedCollection:    api.memory.has("Featured collection") ? api.memory.get("Featured collection") : "Favorites",
             ShowcaseCollection1:           api.memory.has("Collection 1") ? api.memory.get("Collection 1") : "Recently Played",
@@ -71,6 +87,85 @@ id: root
             TallRatio:                     api.memory.has("Tall - Ratio") ? api.memory.get("Tall - Ratio") : "0.66", //0.705
         }
     }
+
+	property var modelList: [
+		listFavorites,	//首页特殊类型
+		listPlatforms,	//首页特殊类型
+		getCollection(settings.ShowcaseCollection1, settings.ShowcaseCollection1_Thumbnail),
+		getCollection(settings.ShowcaseCollection2, settings.ShowcaseCollection2_Thumbnail),
+		getCollection(settings.ShowcaseCollection3, settings.ShowcaseCollection3_Thumbnail),
+		getCollection(settings.ShowcaseCollection4, settings.ShowcaseCollection4_Thumbnail),
+		getCollection(settings.ShowcaseCollection5, settings.ShowcaseCollection5_Thumbnail),
+	]
+
+    function getCollection(collectionName, collectionThumbnail) {
+        var collection = {
+			index: -1,
+            enabled: true,
+            showBoxes: collectionThumbnail === "Box Art",
+			height: vpx(70)
+        };
+
+        var width = root.width - globalMargin * 2;
+
+        switch (collectionThumbnail) {
+            case "Box Art":
+                collection.itemWidth = (width / 8.0);
+                collection.itemHeight = collection.itemWidth / 0.7//(fakebox.paintedHeight / fakebox.paintedWidth);
+				collection.height = vpx(60)
+                break;
+            case "Square":
+                collection.itemWidth = (width / 6.0);
+                collection.itemHeight = collection.itemWidth;
+                break;
+            case "Tall":
+                collection.itemWidth = (width / 8.0);
+                collection.itemHeight = collection.itemWidth / settings.TallRatio;
+                break;     
+            case "Wide":
+            default:
+                collection.itemWidth = (width / 4.0);
+                collection.itemHeight = collection.itemWidth * settings.WideRatio;
+                break;
+        }
+
+        collection.height += (collection.itemHeight + globalMargin)
+
+        switch (collectionName) {
+            case "Favorites":
+                collection.search = listFavorites;
+                break;
+            case "Recently Played":
+                collection.search = listLastPlayed;
+                break;
+            case "Most Played":
+                collection.search = listMostPlayed;
+                break;
+            case "Recommended":
+                collection.search = listRecommended;
+                break;
+            case "Top by Publisher":
+                collection.search = listPublisher;
+                break;
+            case "Top by Genre":
+                collection.search = listGenre;
+                break;
+            case "None":
+                collection.enabled = false;
+                collection.height = 0;
+                collection.search = listNone;
+                break;
+            default:
+                collection.search = listAllGames;
+                break;
+        }
+
+		collection.index = collection.search.games.count > 0 ? 0 : -1;
+        collection.title = collection.search.collection.name;
+        return collection;
+    }
+
+
 
     // Collections
     property int currentCollectionIndex: 0

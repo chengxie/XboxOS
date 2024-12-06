@@ -241,8 +241,8 @@ id: root
                 bottom: parent.bottom; bottomMargin: helpMargin + vpx(40)
             }
 
-            cellWidth: width / numColumns
-            cellHeight: ((showBoxes) ? cellWidth * cellHeightRatio : savedCellHeight) + titleMargin
+            cellWidth: width / numColumns + vpx(14)
+            cellHeight: ((showBoxes) ? (cellWidth - vpx(14)) * cellHeightRatio : savedCellHeight) + titleMargin + vpx(8)
             preferredHighlightBegin: vpx(0)
             preferredHighlightEnd: gamegrid.height - helpMargin - vpx(40)
             highlightRangeMode: GridView.ApplyRange
@@ -295,14 +295,16 @@ id: root
                     width:      GridView.view.cellWidth
                     height:     GridView.view.cellHeight - titleMargin
                     
-                    onActivated: {
+                    onActivate: {
                         if (selected)
                             gameActivated();
                         else
                             gamegrid.currentIndex = index;
+						console.log("1111111")
                     }
                     onHighlighted: {
                         gamegrid.currentIndex = index;
+						console.log("222222")
                     }
                     Keys.onPressed: {
                         // Toggle favorite
