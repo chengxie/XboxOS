@@ -39,6 +39,7 @@ id: root
     
     anchors.fill: parent
 
+
     Item {
     id: header
 
@@ -61,7 +62,6 @@ id: root
 
         Image {
         id: logo
-
             width: vpx(150)
             anchors { left: parent.left; leftMargin: globalMargin }
             source: "../assets/images/gameOS-logo.png"
@@ -73,19 +73,66 @@ id: root
             visible: false //!ftueContainer.visible
         }
 
-        Rectangle {
-        id: settingsbutton
-
-            width: vpx(30)
-            height: vpx(30)
+		ListView {
+		id: headerMenu
+	
+			width: searchButton.width + settingsButton.width + spacing
+			height: vpx(30)
             anchors { 
 			    verticalCenter: parent.verticalCenter
-			    right: sysTime.left; rightMargin: vpx(10)
+				verticalCenterOffset: -vpx(4)
+			    right: sysTime.left; rightMargin: vpx(15)
 			}
-            color: focus ? theme.accent : "transparent"
-            radius: height/2
-            opacity: focus ? 1 : 0.2
+			orientation: ListView.Horizontal
+			spacing: vpx(10)
+			keyNavigationWraps: true
 
+			model: ObjectModel {
+
+				IconButton {
+				id: searchButton
+					property bool selected: ListView.isCurrentItem && headerMenu.focus
+					icon: "../assets/images/searchicon.svg"
+					color: selected ? theme.accent : "transparent"
+					opacity: root.focus ? 0.8 : 0.5
+					onActivate: {
+						if (selected) {
+							sfxAccept.play();
+						} else {
+							sfxNav.play();
+							headerMenu.currentIndex = ObjectModel.index;
+						}
+					}
+				}
+
+				IconButton {
+				id: settingsButton
+					property bool selected: ListView.isCurrentItem && headerMenu.focus
+					icon: "../assets/images/settingsicon.svg"
+					color: selected ? theme.accent : "transparent"
+					opacity: root.focus ? 0.8 : 0.5
+					onActivate: {
+						if (selected) {
+							sfxAccept.play();
+							settingsScreen();
+						} else {
+							sfxNav.play();
+							headerMenu.currentIndex = ObjectModel.index;
+						}
+					}
+				}
+			}
+
+            Keys.onDownPressed: mainList.focus = true;
+			Keys.onLeftPressed: { sfxNav.play(); decrementCurrentIndex() }
+			Keys.onRightPressed: { sfxNav.play(); incrementCurrentIndex() }
+            Keys.onPressed: {
+				if (api.keys.isCancel(event) && !event.isAutoRepeat) {
+					// Back
+                    event.accepted = true;
+                    mainList.focus = true;
+                }
+            }
             onFocusChanged: {
                 sfxNav.play()
                 if (focus)
@@ -93,42 +140,8 @@ id: root
                 else
                     mainList.currentIndex = 0;
             }
+		}
 
-            Keys.onDownPressed: mainList.focus = true;
-            Keys.onPressed: {
-                // Accept
-                if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-                    event.accepted = true;
-                    settingsScreen();            
-                }
-                // Back
-                if (api.keys.isCancel(event) && !event.isAutoRepeat) {
-                    event.accepted = true;
-                    mainList.focus = true;
-                }
-            }
-            // Mouse/touch functionality
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: settings.MouseHover == "Yes"
-                onEntered: settingsbutton.focus = true;
-                onExited: settingsbutton.focus = false;
-                onClicked: settingsScreen();
-            }
-        }
-
-        Image {
-        id: settingsicon
-
-            width: height
-            height: vpx(20)
-            anchors.centerIn: settingsbutton
-            smooth: true
-            asynchronous: true
-            source: "../assets/images/settingsicon.svg"
-            opacity: root.focus ? 0.8 : 0.5
-        }
-		
         Text {
         id: sysTime
 
@@ -144,14 +157,15 @@ id: root
                 triggeredOnStart: true
                 onTriggered: sysTime.set()
             }
-
+			
             anchors {
-                top: parent.top; bottom: parent.bottom
+				verticalCenter: parent.verticalCenter
                 right: parent.right; rightMargin: vpx(25)
-            }
+			}
             color: "white"
-            font.pixelSize: vpx(18)
+            font.pixelSize: vpx(22)
             font.family: subtitleFont.name
+			font.bold: true
             horizontalAlignment: Text.Right
             verticalAlignment: Text.AlignVCenter
         }

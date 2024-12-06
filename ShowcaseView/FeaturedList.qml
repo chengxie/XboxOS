@@ -4,7 +4,7 @@ import QtQuick 2.3
 import QtGraphicalEffects 1.0
 import QtMultimedia 5.9
 import QtQml.Models 2.10
-import "../GameDetails"
+import "../Global"
 import "../utils.js" as Utils
 
 FocusScope {
@@ -337,7 +337,7 @@ id: root
 
 					Keys.onUpPressed: {
 						sfxNav.play(); 
-						settingsbutton.focus = true;
+						headerMenu.focus = true;
 					}
 
 					Keys.onDownPressed: {

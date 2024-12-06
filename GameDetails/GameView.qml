@@ -163,7 +163,7 @@ id: root
 						text: "Play game"
 						height: parent.height
 						selected: ListView.isCurrentItem && menu.focus
-						onHighlighted: { menu.currentIndex = ObjectModel.index; content.currentIndex = 0; }
+						onHighlighted: { menu.currentIndex = ObjectModel.index; }
 						onActivated: 
 							if (selected) {
 								sfxAccept.play();
@@ -180,7 +180,7 @@ id: root
 						icon: favIcon
 						height: parent.height
 						selected: ListView.isCurrentItem && menu.focus
-						onHighlighted: { menu.currentIndex = ObjectModel.index; content.currentIndex = 0; }
+						onHighlighted: { menu.currentIndex = ObjectModel.index; }
 						onActivated: {
 							if (selected) {
 								sfxToggle.play();

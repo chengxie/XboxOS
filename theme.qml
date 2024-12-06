@@ -23,6 +23,7 @@ import "GridView"
 import "Global"
 import "GameDetails"
 import "ShowcaseView"
+import "Search"
 import "Settings"
 import "Lists"
 import "utils.js" as Utils
@@ -403,6 +404,9 @@ id: root
         State {
             name: "softwaregridscreen";
         },
+		State {
+			name: "softwaresearchscreen";
+		},
         State {
             name: "showcasescreen";
         },
@@ -433,6 +437,12 @@ id: root
                 root.state = "softwarescreen";
         }
     }
+
+	function searchScreen() {
+		sfxAccept.play();
+        lastState.push(state);
+        root.state = "softwaresearchscreen";
+	}
 
     function showcaseScreen() {
         sfxAccept.play();
@@ -527,6 +537,19 @@ id: root
     }
 
     Loader  {
+    id: searchviewloader
+
+        focus: (root.state === "softwaresearchscreen")
+        active: opacity !== 0
+        opacity: focus ? 1 : 0
+        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
+
+        anchors.fill: parent
+        sourceComponent: searchview
+        asynchronous: true
+    }
+
+    Loader  {
     id: listviewloader
 
         focus: (root.state === "softwarescreen")
@@ -590,6 +613,12 @@ id: root
     id: gridview
 
         GridViewMenu { focus: true }
+    }
+
+    Component {
+    id: searchview
+
+        SearchView { focus: true }
     }
 
     Component {
