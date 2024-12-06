@@ -29,7 +29,7 @@ FocusScope {
 id: root
 
     property var game: api.allGames.get(0)
-    property string favIcon: game && game.favorite ? "../assets/images/icon_unheart.svg" : "../assets/images/icon_heart.svg"
+    property string favIcon: game && game.favorite ? "../assets/images/icon_heart.svg" : "../assets/images/icon_unheart.svg"
     anchors.fill: parent
 
     // Header
@@ -103,7 +103,13 @@ id: root
 			visible : settings.VideoPreview === "Yes"
 
 			source: (visible && videoExists) ? game.assets.videoList[0] : ""
-            anchors.fill: parent
+			width: parent.width
+			height: parent.width * 0.75
+			anchors {
+				top: parent.top; topMargin: - parent.height * 0.3
+				left: parent.left;
+			}
+
 			fillMode: VideoOutput.PreserveAspectCrop
 			muted: settings.AllowVideoPreviewAudio === "No"
 			loops: MediaPlayer.Infinite
@@ -218,7 +224,7 @@ id: root
         // Filters
         if (api.keys.isFilters(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            sfxAccept.play();
+			sfxToggle.play();
             game.favorite = !game.favorite;
         }
     }

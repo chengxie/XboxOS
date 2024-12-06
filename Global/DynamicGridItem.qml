@@ -46,9 +46,12 @@ id: root
     signal activate
     signal highlighted
 
+	property bool showHighlightTitle: true
+	property bool showTitle: true
+	property int verticalSpacing: 0
+	property int horizontalSpacing: 0
     property bool selected
     property var gameData: modelData
-
 
     // In order to use the retropie icons here we need to do a little collection specific hack
     property bool playVideo: gameData ? gameData.assets.videoList.length && (settings.AllowThumbVideo == "Yes") : ""
@@ -58,11 +61,15 @@ id: root
     Behavior on scale { NumberAnimation { duration: 100 } }
     z: selected ? 10 : 1
 
-    Item 
-    {
+    Item {
     id: container
 
-        anchors.fill: parent
+		anchors {
+			fill: parent
+			bottomMargin: verticalSpacing
+			rightMargin: horizontalSpacing
+		}
+
         opacity: (selected && hideLogoForPlayVideo) ? 0 : 1
         Behavior on opacity { NumberAnimation { duration: 700 } }
 
@@ -135,12 +142,18 @@ id: root
     Component {
     id: border
 
-        ItemBorder { }
+		ItemBorder { 
+			showTitle: showHighlightTitle
+		}
     }
 
     Text {
     id: title
-
+        anchors {
+            top: container.bottom; topMargin: vpx(5)
+            left: parent.left; right: parent.right
+        }
+        visible: showTitle && !selected
         text: modelData ? modelData.title : ''
         color: theme.text
         font {
@@ -148,20 +161,9 @@ id: root
             pixelSize: vpx(16)
             bold: false
         }
-
         elide: Text.ElideRight
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-
-        anchors {
-            top: container.bottom; topMargin: vpx(8)
-            left: parent.left; right: parent.right
-        }
-
-        //width: parent.width
-
-        opacity: 1
-        visible: settings.AlwaysShowTitles === "Yes" && !selected
     }
 
     Text {

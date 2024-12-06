@@ -229,12 +229,12 @@ id: root
 
             Component.onCompleted: {
                 currentIndex = storedCollectionGameIndex;
-                positionViewAtIndex(currentIndex, ListView.Visible);
+                positionViewAtIndex(currentIndex, GridView.Visible);
             }
 
-            populate: Transition {
-                NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 400 }
-            }
+            //populate: Transition {
+                //NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 400 }
+            //}
 
             anchors {
                 top: parent.top; left: parent.left; right: parent.right;
@@ -245,7 +245,7 @@ id: root
             cellHeight: ((showBoxes) ? (cellWidth - vpx(14)) * cellHeightRatio : savedCellHeight) + titleMargin + vpx(8)
             preferredHighlightBegin: vpx(0)
             preferredHighlightEnd: gamegrid.height - helpMargin - vpx(40)
-            highlightRangeMode: GridView.ApplyRange
+            highlightRangeMode: GridView.StrictlyEnforceRange
             highlightMoveDuration: 200
             highlight: highlightcomponent
             keyNavigationWraps: false
@@ -259,10 +259,10 @@ id: root
             id: boxartDelegate
 
                 BoxArtGridItem {
-                    selected: GridView.isCurrentItem && root.focus
-
+                    selected:	GridView.isCurrentItem && root.focus
                     width:      GridView.view.cellWidth - vpx(14)
                     height:     GridView.view.cellHeight - titleMargin - vpx(8)
+					showTitle:	settings.AlwaysShowTitles === "Yes"
                     
                     onActivate: {
                         if (selected)
@@ -290,10 +290,10 @@ id: root
 
                 DynamicGridItem {
 
-                    selected: GridView.isCurrentItem && root.focus
-
+                    selected:	GridView.isCurrentItem && root.focus
                     width:      GridView.view.cellWidth
                     height:     GridView.view.cellHeight - titleMargin
+					showTitle:	settings.AlwaysShowTitles === "Yes"
                     
                     onActivate: {
                         if (selected)

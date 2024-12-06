@@ -86,7 +86,7 @@ id: root
         preferredHighlightBegin: softwarelist.height / 2 - itemheight
         preferredHighlightEnd: softwarelist.height / 2
         highlightRangeMode: ListView.ApplyRange
-        highlightMoveDuration: 100
+        highlightMoveDuration: 200
         clip: true
 
         model: currentCustomCollection.games

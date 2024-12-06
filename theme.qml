@@ -104,7 +104,7 @@ id: root
 			index: -1,
             enabled: true,
             showBoxes: collectionThumbnail === "Box Art",
-			height: vpx(70)
+			height: vpx(50)
         };
 
         var width = root.width - globalMargin * 2;
@@ -113,7 +113,7 @@ id: root
             case "Box Art":
                 collection.itemWidth = (width / 8.0);
                 collection.itemHeight = collection.itemWidth / 0.7//(fakebox.paintedHeight / fakebox.paintedWidth);
-				collection.height = vpx(60)
+				collection.height = vpx(40)
                 break;
             case "Square":
                 collection.itemWidth = (width / 6.0);
@@ -179,6 +179,7 @@ id: root
     property int storedHomeSecondaryIndex: 0
     property int storedCollectionIndex: 0
     property int storedCollectionGameIndex: 0
+	property int showcaseHeaderMenuIndex: -1
 
     // Reset the stored game index when changing collections
     onCurrentCollectionIndexChanged: storedCollectionGameIndex = 0

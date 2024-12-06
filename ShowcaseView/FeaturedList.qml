@@ -156,8 +156,9 @@ id: root
 					property bool videoExists: game ? game.assets.videoList.length : false
 					source: videoExists ? game.assets.videoList[0] : ""
 
-					width: gameVideoWidth
+					width: parent.width //gameVideoWidth
 					height: gameVideoHeight
+					//height: parent.width * 0.75
 					anchors {
 						//top: parent.top; topMargin: root.height * 0.1
 						bottom: parent.bottom; bottomMargin: -vpx(5)
@@ -180,7 +181,7 @@ id: root
 				}
 
 				LinearGradient {
-					width: vid.width * 0.7
+					width: vid.width * 0.6
 					height: vid.height
 					anchors {
 						top: vid.top
@@ -189,7 +190,8 @@ id: root
 					start: Qt.point(0, 0)
 					end: Qt.point(width, 0)
 					gradient: Gradient {
-						GradientStop { position: -0.05; color: "#FF000000" }
+						//GradientStop { position: -0.05; color: "#FF000000" }
+						GradientStop { position: 0.0; color: "#FF000000" }
 						GradientStop { position: 1.0; color: "#00000000" }
 					}
 				}

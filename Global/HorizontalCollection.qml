@@ -66,7 +66,7 @@ id: root
 		preferredHighlightBegin: globalMargin
 		preferredHighlightEnd: parent.width - globalMargin
 		highlightRangeMode: ListView.StrictlyEnforceRange
-		highlightMoveDuration: 100
+		highlightMoveDuration: 200
         highlight: highlightcomponent
         keyNavigationWraps: true
 
@@ -99,6 +99,7 @@ id: root
                 selected: ListView.isCurrentItem && collectionList.focus
                 width: itemWidth
                 height: itemHeight
+				showTitle: settings.AlwaysShowTitles === "Yes"
 				onActivate: {
 					if (selected) {
 						activateSelected();
@@ -120,7 +121,7 @@ id: root
                 selected: ListView.isCurrentItem && collectionList.focus
                 width: itemWidth
                 height: itemHeight
-                
+				showTitle: settings.AlwaysShowTitles === "Yes"
                 onActivate: {
                     if (selected) {
                         activateSelected();

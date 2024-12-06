@@ -357,7 +357,7 @@ id: root
         preferredHighlightBegin: settingsList.height / 2 - itemheight
         preferredHighlightEnd: settingsList.height / 2
         highlightRangeMode: ListView.ApplyRange
-        highlightMoveDuration: 100
+        highlightMoveDuration: 200
         clip: true
 
         Component {

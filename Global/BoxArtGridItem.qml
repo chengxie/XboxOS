@@ -52,10 +52,12 @@ id: root
         return "";
     }
 
+	property bool showHighlightTitle: true
+	property bool showTitle: true
+	property int verticalSpacing: 0
+	property int horizontalSpacing: 0
     property bool selected
-    Behavior on scale { NumberAnimation { duration: 100 } }
     property var gameData: modelData
-    property int columns: 6
 
     scale: selected ? 1.1 : 1
     z: selected ? 10 : 1
@@ -63,17 +65,22 @@ id: root
     signal activate
     signal highlighted
 
+    Behavior on scale { NumberAnimation { duration: 100 } }
+
     Item {
     id: container
 
-        anchors.fill: parent
-        //anchors.margins: vpx(6)
+		anchors {
+			fill: parent
+			bottomMargin: verticalSpacing
+			rightMargin: horizontalSpacing
+		}
+
         Behavior on opacity { NumberAnimation { duration: 200 } }
                        
         Image {
         id: screenshot
             anchors.fill: parent
-            //anchors.margins: vpx(2)
 
             asynchronous: true
             source: boxArt(gameData)
@@ -139,12 +146,18 @@ id: root
     Component {
     id: border
 
-        ItemBorder { }
+		ItemBorder { 
+			showTitle: showHighlightTitle
+		}
     }
 
     Text {
     id: title
-
+        anchors {
+            top: container.bottom; topMargin: vpx(5)
+            left: parent.left; right: parent.right
+        }
+        visible: showTitle && !selected
         text: modelData ? modelData.title : ''
         color: theme.text
         font {
@@ -152,18 +165,9 @@ id: root
             pixelSize: vpx(16)
             bold: false
         }
-
         elide: Text.ElideRight
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-
-        anchors {
-            top: container.bottom; topMargin: vpx(8)
-            left: parent.left; right: parent.right
-        }
-
-        opacity: 1
-        visible: settings.AlwaysShowTitles === "Yes" && !selected
     }
 
     Text {

@@ -39,7 +39,6 @@ id: root
     
     anchors.fill: parent
 
-
     Item {
     id: header
 
@@ -75,7 +74,7 @@ id: root
 
 		ListView {
 		id: headerMenu
-	
+			
 			width: searchButton.width + settingsButton.width + spacing
 			height: vpx(30)
             anchors { 
@@ -87,6 +86,30 @@ id: root
 			spacing: vpx(10)
 			keyNavigationWraps: true
 
+			Component.onDestruction: {
+				if (focus) {
+					showcaseHeaderMenuIndex = currentIndex;
+				} else {
+					showcaseHeaderMenuIndex = -1;
+				}
+			}
+
+			Component.onCompleted: {
+				if (showcaseHeaderMenuIndex != -1) {
+					currentIndex = showcaseHeaderMenuIndex
+					focus = true
+				}
+			}
+
+            onFocusChanged: {
+                //sfxNav.play()
+                if (focus) {
+                    mainList.currentIndex = -1;
+				} else {
+                    mainList.currentIndex = 0;
+				}
+            }
+	
 			model: ObjectModel {
 
 				IconButton {
@@ -95,9 +118,11 @@ id: root
 					icon: "../assets/images/searchicon.svg"
 					color: selected ? theme.accent : "transparent"
 					opacity: root.focus ? 0.8 : 0.5
+					onHighlighted: { headerMenu.currentIndex = ObjectModel.index; }
 					onActivate: {
 						if (selected) {
 							sfxAccept.play();
+							searchScreen();
 						} else {
 							sfxNav.play();
 							headerMenu.currentIndex = ObjectModel.index;
@@ -111,6 +136,7 @@ id: root
 					icon: "../assets/images/settingsicon.svg"
 					color: selected ? theme.accent : "transparent"
 					opacity: root.focus ? 0.8 : 0.5
+					onHighlighted: { headerMenu.currentIndex = ObjectModel.index; }
 					onActivate: {
 						if (selected) {
 							sfxAccept.play();
@@ -133,21 +159,10 @@ id: root
                     mainList.focus = true;
                 }
             }
-            onFocusChanged: {
-                sfxNav.play()
-                if (focus)
-                    mainList.currentIndex = -1;
-                else
-                    mainList.currentIndex = 0;
-            }
 		}
 
         Text {
         id: sysTime
-
-            function set() {
-                sysTime.text = Qt.formatTime(new Date(), "hh:mm AP")
-            }
 
             Timer {
                 id: textTimer
@@ -155,7 +170,9 @@ id: root
                 repeat: true
                 running: true
                 triggeredOnStart: true
-                onTriggered: sysTime.set()
+                onTriggered: {
+					sysTime.text = Qt.formatTime(new Date(), "hh:mm AP")
+				}
             }
 			
             anchors {
@@ -165,7 +182,6 @@ id: root
             color: "white"
             font.pixelSize: vpx(22)
             font.family: subtitleFont.name
-			font.bold: true
             horizontalAlignment: Text.Right
             verticalAlignment: Text.AlignVCenter
         }
@@ -195,10 +211,8 @@ id: root
 			width: root.width
 		}
 
-		//cacheBuffer: 100
 		Component.onCompleted: {
 			positionViewAtIndex(currentIndex, ListView.Visible)
-			//console.log("currentIndex: " + currentIndex);
 		}
 
         Keys.onUpPressed: {

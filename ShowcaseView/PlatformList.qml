@@ -23,7 +23,7 @@ id: root
 		preferredHighlightBegin: globalMargin
 		preferredHighlightEnd: parent.width - globalMargin
 		highlightRangeMode: ListView.StrictlyEnforceRange
-		highlightMoveDuration: 100
+		highlightMoveDuration: 200
 
 		keyNavigationWraps: true
 
