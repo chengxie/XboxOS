@@ -31,9 +31,27 @@ id: root
 		displayMarginBeginning: cellHeight * 2
 		displayMarginEnd: cellHeight * 2
 
+        onFocusChanged: {
+            if (focus) {
+                currentIndex = storedCollectionGameIndex;
+				if (gameList.games.count) {
+					if (currentIndex >= gameList.games.count) {
+						currentIndex = 0;
+					}
+				} else {
+					currentIndex = -1;
+				}
+			} else {
+				storedCollectionGameIndex = currentIndex;
+            }
+        }
+
+		Component.onDestruction: {
+			storedCollectionGameIndex = currentIndex;
+		}
+
 		Component.onCompleted: {
-			currentIndex = 0;//storedCollectionGameIndex;
-            //currentIndex = storedCollectionGameIndex;
+			currentIndex = storedCollectionGameIndex;
 			positionViewAtIndex(currentIndex, GridView.Visible);
 		}
 
@@ -52,7 +70,6 @@ id: root
 				showHighlightedTitles:	root.showHighlightedTitles
 				onActivate: {
 					if (selected) {
-						storedCollectionGameIndex = GridView.view.currentIndex
 						gameDetails(modelData);
 					} else {
 						GridView.view.currentIndex = index;

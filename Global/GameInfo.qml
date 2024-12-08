@@ -54,48 +54,8 @@ id: infocontainer
             left: parent.left
             right: parent.right
         }
-/*
-        // Rating box
-        Text {
-        id: ratingtitle
 
-            width: contentWidth 
-            height: parent.height
-            anchors { left: parent.left; }
-            verticalAlignment: Text.AlignVCenter
-            text: "Rating: "
-            font.pixelSize: vpx(16)
-            font.family: subtitleFont.name
-            font.bold: true
-            color: theme.accent
-        }
-
-        Text {
-        id: ratingtext
-            
-            property real processedRating: gameData ? Math.round(gameData.rating * 100) / 100 : ""
-            width: contentWidth
-            height: parent.height
-            anchors { left: ratingtitle.right; leftMargin: vpx(5) }
-            verticalAlignment: Text.AlignVCenter
-            text: steam ? processedRating*5 : processedRating
-            font.pixelSize: vpx(16)
-            font.family: subtitleFont.name
-            color: theme.text
-        }
-
-        Rectangle {
-        id: divider1
-            width: vpx(2)
-            anchors {
-                left: ratingtext.right; leftMargin: (25)
-                top: parent.top; topMargin: vpx(10)
-                bottom: parent.bottom; bottomMargin: vpx(10)
-            }
-            opacity: 0.2
-        }
-*/
-        // Players box
+        // publisher
         Text {
         id: publisherTitle
 

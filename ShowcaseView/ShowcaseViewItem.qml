@@ -25,21 +25,23 @@ id: root
 
 		// 根据条件切换子组件
 		sourceComponent: { 
-			if (collection instanceof ListFavorites) { 
-				parent.height = vpx(480); //vpx(410)
-				return featuredComponent;
-			} else if (collection instanceof ListPlatforms) {
-				parent.height = vpx(123)	//cellheight:87 + spacing:12 + globalMargin:30
-				return platformComponent;
+			switch (collection.shortName) {
+				case "favorites":
+					parent.height = vpx(480); //vpx(410)
+					return featuredComponent;
+				case "platforms":
+					parent.height = vpx(123)	//cellheight:87 + spacing:12 + globalMargin:30
+					return platformComponent;
+				default:
+					fakebox.collection = collection.search
+					let numColumns = settings.GridColumns;
+					let spacing = (parent.width - globalMargin * 2) / numColumns * 0.08;
+					let cw = (parent.width - globalMargin * 2 + spacing) / numColumns - spacing;
+					let ch = cw * fakebox.ratio;
+					// 列表标题高18
+					parent.height = ch + titleHeight + vpx(18) + spacing + globalMargin;
+					return collectionComponent;
 			}
-			fakebox.collection = collection.search
-			let numColumns = settings.GridColumns;
-			let spacing = (parent.width - globalMargin * 2) / numColumns * 0.08;
-			let cw = (parent.width - globalMargin * 2 + spacing) / numColumns - spacing;
-			let ch = cw * fakebox.ratio;
-			// 列表标题高18
-			parent.height = ch + titleHeight + vpx(18) + spacing + globalMargin;
-			return collectionComponent;
 		}
 
     }
@@ -52,7 +54,6 @@ id: root
 			focus: root.selected
 			collection: root.collection
             height: root.height
-			modelIndex: index
 		}
 	}
 
@@ -64,7 +65,13 @@ id: root
 			focus: root.selected
 			collection: root.collection
             height: root.height
-			modelIndex: index
+			onActivateSelected: {
+				currentCollectionIndex = currentIndex;
+				softwareScreen();            
+			}
+			onListHighlighted: {
+				mainList.currentIndex = index;
+			}
 		}
 	}
 
@@ -75,17 +82,12 @@ id: root
 		
 		HorizontalCollection {
 		id: horizontalCollection
-			anchors.fill: parent
             focus: root.selected
             collection: root.collection
-            enabled: collection.enabled
             visible: collection.enabled
-            gameList: collection.search
             title: collection.title
 			onActivateSelected: {
-				storedHomeSecondaryIndex = currentIndex;
 				gameDetails(gameList.currentGame(currentIndex));
-				//console.log("onActivateSelected, storedHomeSecondaryIndex: " + storedHomeSecondaryIndex);
 			}
 			onListHighlighted: {
 				mainList.currentIndex = index;

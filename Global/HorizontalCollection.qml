@@ -22,13 +22,12 @@ import "../GridView"
 FocusScope {
 id: root
 	property var collection
-    property alias collectionList: collectionList
+	property var gameList: collection.search
     property alias currentIndex: collectionList.currentIndex
     property alias title: collectiontitle.text
 	property bool showTitles: settings.AlwaysShowTitles === "Yes"
 	property bool showHighlightedTitles: showTitles
 	property int numColumns: settings.GridColumns ? settings.GridColumns : 6
-	property var gameList
 
     signal activateSelected
     signal listHighlighted
@@ -74,7 +73,6 @@ id: root
 			} else {
                 collection.index = currentIndex;
             }
-			//console.log("collectionList focus changed to", focus, "currentIndex", currentIndex);
         }
 
 		Component.onDestruction: {
@@ -82,15 +80,15 @@ id: root
 		}
 
 		Component.onCompleted: {
-			currentIndex: collection.index
+			currentIndex = collection.index
 			positionViewAtIndex(currentIndex, ListView.Visible)
 		}
 
         model: gameList.games ? gameList.games : api.allGames
         delegate: BoxArtGridItem {
 			selected:				ListView.isCurrentItem && ListView.view.focus
-			width:					ListView.view.cellWidth
-			height:					ListView.view.cellHeight
+			width:					ListView.view.cellWidth	* (selected ? 1.1 : 1)
+			height:					ListView.view.cellHeight * (selected ? 1.1 : 1)
 			showTitles:				root.showTitles
 			showHighlightedTitles:	root.showHighlightedTitles
 			onActivate: {
@@ -106,14 +104,8 @@ id: root
 			}
 		}
 
-		Keys.onLeftPressed: {
-			sfxNav.play();
-			decrementCurrentIndex()
-		}
-		Keys.onRightPressed: {
-			sfxNav.play();
-			incrementCurrentIndex()
-		}
+		Keys.onLeftPressed: { sfxNav.play(); decrementCurrentIndex() }
+		Keys.onRightPressed: { sfxNav.play(); incrementCurrentIndex() }
 
     }
 

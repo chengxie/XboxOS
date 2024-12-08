@@ -78,16 +78,13 @@ id: root
     }
 
     DropShadow {
-    id: logoshadow
-
+        source: logo
         anchors.fill: logo
-        horizontalOffset: 0
-        verticalOffset: 0
+        horizontalOffset: vpx(2)
+        verticalOffset: horizontalOffset
         radius: 8.0
         samples: 12
         color: "#000000"
-        source: logo
-        opacity: 1
     }
 
     Item {
@@ -107,13 +104,12 @@ id: root
 
         Rectangle {
         id: regborder
-
             anchors.fill: parent
             color: "black"
             border.width: vpx(1)
             border.color: "white"
             opacity: 0.2
-            radius: height/2
+            radius: height / 2
         }
 
         Text {

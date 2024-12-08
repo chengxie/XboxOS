@@ -23,12 +23,6 @@ import "../utils.js" as Utils
 
 FocusScope {
 id: root
-    // While not necessary to do it here, this means we don't need to change it in both
-    // touch and gamepad functions each time
-    function gameActivated() {
-        storedCollectionGameIndex = gamegrid.currentIndex
-        gameDetails(list.currentGame(gamegrid.currentIndex));
-    }
 
     property var sortedGames;
     property bool isLeftTriggerPressed: false;
@@ -137,7 +131,7 @@ id: root
     Rectangle {
     id: navigationOverlay
         anchors.fill: parent;
-        color: theme.main
+        color: theme.primary
         opacity: 0
         z: 10
 
@@ -175,7 +169,7 @@ id: root
             right:  parent.right
         }
         height: vpx(75)
-        color: theme.main
+        color: theme.primary
         z: 5
 
         HeaderBar {
@@ -186,7 +180,6 @@ id: root
         Keys.onDownPressed: {
             sfxNav.play();
             gamegrid.focus = true;
-            gamegrid.currentIndex = 0;
         }
     }
 
@@ -205,7 +198,6 @@ id: root
 			if (currentIndex < numColumns) {
 				sfxNav.play();
 				headercontainer.focus = true;
-				//currentIndex = -1;
 			}
 		}
     }
@@ -228,16 +220,16 @@ id: root
 
     Keys.onPressed: {
         // Accept
-        if (api.keys.isAccept(event) && !event.isAutoRepeat) {
-            event.accepted = true;
-            if (gamegrid.focus) {
-                gameActivated();
-            } else {
-                gamegrid.currentIndex = 0;
-                gamegrid.focus = true;
-            }
-            return;
-        }
+        //if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+            //event.accepted = true;
+            //if (gamegrid.focus) {
+                //gameActivated();
+            //} else {
+                //gamegrid.currentIndex = 0;
+                //gamegrid.focus = true;
+            //}
+            //return;
+        //}
 
         // Back
         if (api.keys.isCancel(event) && !event.isAutoRepeat) {

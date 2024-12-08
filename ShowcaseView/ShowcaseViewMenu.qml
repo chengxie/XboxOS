@@ -28,15 +28,7 @@ import "qrc:/qmlutils" as PegasusUtils
 
 FocusScope {
 id: root
-
-    function storeIndices(secondary) {
-        storedHomePrimaryIndex = mainList.currentIndex;
-        if (secondary)
-            storedHomeSecondaryIndex = secondary;
-    }
-
-    Component.onDestruction: storeIndices();
-    
+ 
     anchors.fill: parent
 
     Item {
@@ -200,7 +192,6 @@ id: root
 		preferredHighlightEnd: parent.height - (helpMargin * 2)
 		snapMode: ListView.SnapOneItem
         keyNavigationWraps: false
-        currentIndex: storedHomePrimaryIndex
 		spacing: vpx(10)
         
         footer: Item { height: helpMargin }
@@ -211,7 +202,11 @@ id: root
 			width: root.width
 		}
 
+		Component.onDestruction: { 
+			storedHomePrimaryIndex = currentIndex;
+		}
 		Component.onCompleted: {
+			currentIndex: storedHomePrimaryIndex
 			positionViewAtIndex(currentIndex, ListView.Visible)
 		}
 

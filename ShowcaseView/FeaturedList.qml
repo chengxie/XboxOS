@@ -1,5 +1,8 @@
-import QtQuick 2.3
-import QtGraphicalEffects 1.0
+//import QtQuick 2.3
+//import QtGraphicalEffects 1.0
+import QtQuick 2.15
+import QtGraphicalEffects 1.15
+
 import QtMultimedia 5.9
 import QtQml.Models 2.10
 import "../Global"
@@ -9,15 +12,14 @@ FocusScope {
 id: root
 
 	property var collection
-	property int modelIndex: 0
-    property bool ftue: collection.games.count == 0
+	property var gameList: collection.search
+    property alias currentIndex: featuredList.currentIndex
+    property bool ftue: gameList.games.count == 0
     property real gameVideoRatio: 0.75
     property real gameVideoWidth: root.width * 0.75
     property real gameVideoHeight: gameVideoWidth * gameVideoRatio
 
-    property alias featuredList: featuredList
 
-    anchors.fill: parent
 	//height: gameVideoHeight // parent.height //
 	//signal activate
 
@@ -117,12 +119,23 @@ id: root
 		snapMode: ListView.SnapOneItem
 		keyNavigationWraps: true
 
-		currentIndex: (storedHomePrimaryIndex == 0) ? storedHomeSecondaryIndex : 0
+        onFocusChanged: {
+            if (focus) {
+                currentIndex = collection.index;
+			} else {
+                collection.index = currentIndex;
+            }
+        }
+
+		Component.onDestruction: {
+			collection.index = currentIndex;
+		}
 		Component.onCompleted: {
+			currentIndex = collection.index
 			positionViewAtIndex(currentIndex, ListView.Visible)
 		}
 
-		model: !ftue ? collection.games : null
+        model: !ftue ? gameList.games : null
 		delegate: featuredDelegate
 
 		Component {
@@ -133,7 +146,7 @@ id: root
 				property var game: modelData
 				width: featuredList.width
 				height: featuredList.height
-				
+
 				Video {
 				id: vid
 					property bool videoExists: game ? game.assets.videoList.length : false
@@ -240,7 +253,7 @@ id: root
 						}
 						color: theme.text
 						style: Text.Outline; 
-						styleColor: theme.main
+						styleColor: theme.primary
 						elide: Text.ElideRight
 						wrapMode: Text.WordWrap
 						//lineHeight: 0.8
@@ -267,14 +280,15 @@ id: root
 						elide: Text.ElideRight
 					}
 				}
+
 				DropShadow {
+					source: gameInfo
 					anchors.fill: gameInfo
 					horizontalOffset: vpx(2)
 					verticalOffset: horizontalOffset
 					radius: 8.0
 					samples: 12
 					color: "#000000"
-					source: gameInfo
 				}
 
 				// Mouse/touch functionality
@@ -321,10 +335,9 @@ id: root
 			//Accept
 			if (api.keys.isAccept(event) && !event.isAutoRepeat) {
 				event.accepted = true;
-				storedHomeSecondaryIndex = currentIndex;
 				if (!ftue) {
 					sfxAccept.play();
-					gameDetails(collection.currentGame(currentIndex));            
+					gameDetails(gameList.currentGame(currentIndex));            
 				}
 			}
 		}

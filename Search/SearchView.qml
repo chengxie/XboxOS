@@ -42,7 +42,7 @@ id: root
             right:  parent.right
         }
         height: globalMargin//vpx(35)
-        color: theme.main
+        color: theme.primary
         z: 5
     }
 
@@ -81,7 +81,7 @@ id: root
 					right: parent.right
 				}
 				height: vpx(35)
-				color: theme.main
+				color: theme.primary
 
 				Text {
 				id: searchPlaceholder

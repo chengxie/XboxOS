@@ -116,7 +116,6 @@ id: root
             border.width: vpx(1)
             border.color: "white"
             opacity: 0.2
-            visible: true
         }
 
         Rectangle {
@@ -124,21 +123,18 @@ id: root
             anchors.fill: parent
             color: screenshot.source == "" ? theme.secondary : "black"
             opacity: screenshot.source == "" ? 1 : selected ? 0.0 : 0.2
-            //visible: false
         }
  
     }
 
 	DropShadow {
-		visible: settings.Showshadow === "Yes"
+		source: container
 		anchors.fill: container
-		horizontalOffset: selected ? g_shadowSize * 2 : g_shadowSize
+		horizontalOffset: selected ? vpx(2) : vpx(1)
 		verticalOffset: horizontalOffset
 		radius: 8.0
 		samples: 12
 		color: "#000000"
-		//color: "#00FF00"
-		source: container
 	}
 
 	ItemBorder { 
@@ -176,7 +172,7 @@ id: root
         font.pixelSize: vpx(18)
         font.family: subtitleFont.name
         font.bold: true
-        style: Text.Outline; styleColor: theme.main
+        style: Text.Outline; styleColor: theme.primary
         visible: screenshot.status === Image.Null || screenshot.status === Image.Error
         anchors.centerIn: parent
         elide: Text.ElideRight
@@ -217,7 +213,7 @@ id: root
         // Accept
         if (api.keys.isAccept(event) && !event.isAutoRepeat) {
             event.accepted = true;
-            activate();        
+            activate();
         }
     }
 
@@ -232,21 +228,4 @@ id: root
         }
     }
     
-    /*// Mouse/touch functionality
-    MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        onEntered: {}
-        onExited: {}
-        onClicked: {
-            if (selected)
-            {
-                activate();
-            }
-            else
-            {
-                currentGameIndex = index
-            }
-        }
-    }*/
 }

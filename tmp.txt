@@ -1,0 +1,160 @@
+Rectangle {
+id: shaderRect
+	//width: 400
+	//height: 300
+	anchors.fill: parent
+    anchors.centerIn: parent
+	color: "black"
+	//gradient: Gradient {
+		//GradientStop { position: 0.0; color: "red" }
+		//GradientStop { position: 1.0; color: "blue" }
+	//}
+	gradient: Gradient {
+		GradientStop { position: 1.0; color: Qt.rgba(1/255.0, 2/255.0, 67/255.0, 1.0) }
+		GradientStop { position: 0.66; color: Qt.rgba(1/255.0, 73/255.0, 183/255.0, 1.0) }
+		GradientStop { position: 0.33; color: Qt.rgba(1/255.0, 93/255.0, 194/255.0, 1.0) }
+		GradientStop { position: 0.0; color: Qt.rgba(3/255.0, 162/255.0, 254/255.0, 1.0) }
+	}
+	    // 用于驱动时间变量变化的定时器
+    Timer {
+        id: frameTimer
+        interval: 16 // ~60帧
+        running: true
+        repeat: true
+        onTriggered: {
+            shaderEffect.time = shaderEffect.time + 0.016
+			//console.log("time:", shaderEffect.time)
+        }
+    }
+
+    // ShaderEffect 用于渲染背景
+    ShaderEffect {
+		//visible: false
+        id: shaderEffect
+        anchors.fill: parent
+
+        // 用于作为背景的纹理，可以是渐变或图片
+        property variant sourceTexture: ShaderEffectSource {
+            id: backgroundSource
+            anchors.fill: parent
+            live: true
+            sourceItem: Rectangle {
+				width: shaderRect.width
+				height: shaderRect.height
+				//anchors.centerIn: shaderRect
+				color: "white"
+				//gradient: Gradient {
+					//GradientStop { position: 0.0; color: "#3A89C9" }    // 深蓝
+					////GradientStop { position: 0.0; color: "#F26C4F" }    // 橙红
+					////GradientStop { position: 0.0; color: "black" }
+					//GradientStop { position: 1.0; color: "white" }
+				//}
+            }
+        }
+
+        // 动态传入给着色器的时间值
+        property real time: 0.0
+
+        vertexShader: "
+            uniform highp mat4 qt_Matrix;
+            attribute highp vec4 qt_Vertex;
+            attribute highp vec2 qt_MultiTexCoord0;
+            varying highp vec2 coord;
+            void main() {
+                coord = qt_MultiTexCoord0;
+                gl_Position = qt_Matrix * qt_Vertex;
+            }
+        "
+
+        fragmentShader: "
+            varying highp vec2 coord;
+            uniform sampler2D sourceTexture;
+            uniform highp float time;
+
+            void main() {
+				//highp float waveFreqX = 5.0;   // X方向波频率
+				//highp float waveAmpX  = 0.02;  // X方向波幅度
+				//highp float waveFreqY = 3.0;   // Y方向波频率
+				//highp float waveAmpY  = 0.02;  // Y方向波幅度
+				
+                //// 基于时间移动相位
+                //highp float phase = time * 5.0;
+                
+                //// 计算波动后的纹理坐标
+                //highp float offsetX = sin(coord.y * waveFreqX + phase) * waveAmpX;
+                //highp float offsetY = cos(coord.x * waveFreqY + phase) * waveAmpY;
+
+                //highp vec2 distortedCoord = coord + vec2(offsetX, offsetY);
+
+                //// 从源纹理中取样
+				//vec2 uv = fract(distortedCoord);
+                //highp vec4 color = texture2D(sourceTexture, uv);
+                
+                //// 为了让色彩更柔和，可以加一点淡入淡出处理
+                //color.rgb *= 0.95 + 0.05 * sin(time * 0.3);
+
+                //gl_FragColor = color;
+				
+	// 丝带中心和高度
+    float ribbonCenter = 0.5;
+    float ribbonHeight = 0.01;
+
+    float distFromCenter = abs(coord.y - ribbonCenter);
+    if (distFromCenter > ribbonHeight) {
+        // 超出丝带区域，设为透明或较暗背景
+        gl_FragColor = vec4(0.0,0.0,0.0,0.0);
+        return;
+    }
+
+    // 计算边缘过渡
+    float edgeBlend = smoothstep(ribbonHeight, ribbonHeight*0.8, distFromCenter);
+
+    // 定义波形
+    float phase = time * 0.5; // 调整时间因子
+    float waveFreqX1 = 10.0;
+    float waveAmpX1  = 0.02;
+    float waveFreqX2 = 5.0;
+    float waveAmpX2  = 0.01;
+
+    float waveX = sin(coord.x * waveFreqX1 + phase) * waveAmpX1
+                + sin(coord.x * waveFreqX2 + phase*1.3) * waveAmpX2;
+
+    vec2 distortedCoord = vec2(coord.x + waveX, coord.y);
+
+    // 使用fract保证在0~1区间,防止取样边缘导致纯色
+    vec2 uv = fract(distortedCoord);
+    vec4 color = texture2D(sourceTexture, uv);
+
+    // 根据edgeBlend对颜色进行淡化，让边缘透明或暗淡
+    // 假设要让边缘透明，则：
+    color.a = 1.0 - edgeBlend;
+
+    // 略微调整颜色亮度，让丝带更凸显
+    color.rgb = mix(color.rgb * 0.8, color.rgb, 1.0 - edgeBlend); // 中心更亮，边缘更暗
+
+    gl_FragColor = color;
+            }
+        "
+    }
+
+    //Gradient {
+        //id: gradient
+        //GradientStop { position: 1.0; color: Qt.rgba(3/255.0, 162/255.0, 254/255.0, 1.0) }
+        //GradientStop { position: 0.66; color: Qt.rgba(1/255.0, 93/255.0, 194/255.0, 1.0) }
+        //GradientStop { position: 0.33; color: Qt.rgba(1/255.0, 73/255.0, 183/255.0, 1.0) }
+        //GradientStop { position: 0.0; color: Qt.rgba(1/255.0, 2/255.0, 67/255.0, 1.0) }
+    //}
+
+    //LinearGradient {
+        //anchors.fill: parent
+		//start: Qt.point(0, height)
+		//end: Qt.point(0, 0)
+		//gradient: Gradient {
+			//GradientStop { position: 0.0; color: Qt.rgba(1/255.0, 2/255.0, 67/255.0, 1.0) }
+			//GradientStop { position: 0.33; color: Qt.rgba(1/255.0, 73/255.0, 183/255.0, 1.0) }
+			//GradientStop { position: 0.66; color: Qt.rgba(1/255.0, 93/255.0, 194/255.0, 1.0) }
+			//GradientStop { position: 1.0; color: Qt.rgba(3/255.0, 162/255.0, 254/255.0, 1.0) }
+		//}
+    //}
+}
+

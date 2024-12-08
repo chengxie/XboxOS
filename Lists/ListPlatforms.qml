@@ -4,12 +4,12 @@ import SortFilterProxyModel 0.2
 Item {
 id: root
     
-    readonly property alias platforms: platformsFiltered
-    function currentPlatform(index) { return api.collections.get(platformsFiltered.mapToSource(index)) }
-    property int max: platformsFiltered.count
+    readonly property alias games: gamesFiltered
+    function currentPlatform(index) { return api.collections.get(gamesFiltered.mapToSource(index)) }
+    property int max: gamesFiltered.count
 
     SortFilterProxyModel {
-    id: platformsFiltered
+    id: gamesFiltered
 
         sourceModel: api.collections
         filters: IndexFilter { maximumIndex: max - 1 }
@@ -19,7 +19,7 @@ id: root
         return {
             name:       "Platforms",
             shortName:  "platforms",
-            platforms:  platformsFiltered
+            games:  gamesFiltered
         }
     }
 }

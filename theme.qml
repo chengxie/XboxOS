@@ -20,12 +20,14 @@ import SortFilterProxyModel 0.2
 import QtMultimedia 5.9
 import "GridView"
 import "Global"
+import "Screens"
 import "GameDetails"
 import "ShowcaseView"
 import "Search"
 import "Settings"
 import "Lists"
 import "utils.js" as Utils
+import "themes.js" as Themes
 
 FocusScope {
 id: root
@@ -57,13 +59,9 @@ id: root
             GameRandomBackground:          api.memory.has("Randomize Background") ? api.memory.get("Randomize Background") : "No",
             GameBlurBackground:            api.memory.has("Blur Background") ? api.memory.get("Blur Background") : "No",
             VideoPreview:                  api.memory.has("Video preview") ? api.memory.get("Video preview") : "Yes",
-            AllowThumbVideo:               api.memory.has("Allow video thumbnails") ? api.memory.get("Allow video thumbnails") : "Yes",
-            AllowThumbVideoAudio:          api.memory.has("Play video thumbnail audio") ? api.memory.get("Play video thumbnail audio") : "No",
-            HideLogo:                      api.memory.has("Hide logo when thumbnail video plays") ? api.memory.get("Hide logo when thumbnail video plays") : "No",
             HideButtonHelp:                api.memory.has("Hide button help") ? api.memory.get("Hide button help") : "No",
             ColorLayout:                   api.memory.has("Color Layout") ? api.memory.get("Color Layout") : "Dark Green",
 			ColorBackground:               api.memory.has("Color Background") ? api.memory.get("Color Background") : "Black",
-            Showshadow:					   api.memory.has("Show shadow") ? api.memory.get("Show shadow") : "Yes",
             MouseHover:                    api.memory.has("Enable mouse hover") ? api.memory.get("Enable mouse hover") : "No",
             AlwaysShowTitles:              api.memory.has("Always show titles") ? api.memory.get("Always show titles") : "No",
             AlwaysShowHighlightedTitles:   api.memory.has("Always show highlighted titles") ? api.memory.get("Always show highlighted titles") : "No",
@@ -81,8 +79,10 @@ id: root
     }
 
 	property var modelList: [
-		listFavorites,	//首页特殊类型
-		listPlatforms,	//首页特殊类型
+		//listFavorites,	
+		//listPlatforms,	//首页特殊类型
+		getCollection("Favorites"),
+		getCollection("Platforms"),
 		getCollection(settings.ShowcaseCollection1),
 		getCollection(settings.ShowcaseCollection2),
 		getCollection(settings.ShowcaseCollection3),
@@ -92,14 +92,16 @@ id: root
 
     function getCollection(collectionName) {
         var collection = {
-			index: -1,
-            enabled: true,
+            enabled: collectionName !== "None"
         };
 
         switch (collectionName) {
             case "Favorites":
                 collection.search = listFavorites;
                 break;
+			case "Platforms":
+                collection.search = listPlatforms;
+				break;
             case "Recently Played":
                 collection.search = listLastPlayed;
                 break;
@@ -116,20 +118,18 @@ id: root
                 collection.search = listGenre;
                 break;
             case "None":
-                collection.enabled = false;
                 collection.search = listNone;
                 break;
             default:
                 collection.search = listAllGames;
                 break;
         }
-
+		
 		collection.index = collection.search.games.count > 0 ? 0 : -1;
         collection.title = collection.search.collection.name;
+		collection.shortName = collection.search.collection.shortName;
         return collection;
     }
-
-	property int g_shadowSize: vpx(1)
 
     // Collections
     property int currentCollectionIndex: 0
@@ -139,8 +139,6 @@ id: root
 
     // Stored variables for page navigation
     property int storedHomePrimaryIndex: 0
-    property int storedHomeSecondaryIndex: 0
-    property int storedCollectionIndex: 0
     property int storedCollectionGameIndex: 0
 	property int showcaseHeaderMenuIndex: -1
 
@@ -206,13 +204,10 @@ id: root
         api.memory.set('lastState', JSON.stringify(lastState));
         api.memory.set('lastGame', JSON.stringify(lastGame));
         api.memory.set('storedHomePrimaryIndex', storedHomePrimaryIndex);
-        api.memory.set('storedHomeSecondaryIndex', storedHomeSecondaryIndex);
-        api.memory.set('storedCollectionIndex', currentCollectionIndex);
         api.memory.set('storedCollectionGameIndex', storedCollectionGameIndex);
 
         const savedGameIndex = api.allGames.toVarArray().findIndex(g => g === game);
         api.memory.set('savedGame', savedGameIndex);
-
         api.memory.set('To Game', 'True');
     }
 
@@ -223,8 +218,6 @@ id: root
         lastGame                    = JSON.parse(api.memory.get('lastGame'));
         currentCollectionIndex      = api.memory.get('savedCollection');
         storedHomePrimaryIndex      = api.memory.get('storedHomePrimaryIndex');
-        storedHomeSecondaryIndex    = api.memory.get('storedHomeSecondaryIndex');
-        currentCollectionIndex      = api.memory.get('storedCollectionIndex');
         storedCollectionGameIndex   = api.memory.get('storedCollectionGameIndex');
 
         currentGame                 = api.allGames.get(api.memory.get('savedGame'));
@@ -236,8 +229,6 @@ id: root
         api.memory.unset('lastState');
         api.memory.unset('lastGame');
         api.memory.unset('storedHomePrimaryIndex');
-        api.memory.unset('storedHomeSecondaryIndex');
-        api.memory.unset('storedCollectionIndex');
         api.memory.unset('storedCollectionGameIndex');
 
         // Remove this one so we only have it when we come back from the game and not at Pegasus launch
@@ -245,118 +236,7 @@ id: root
     }
 
     // Theme settings
-	    property var theme: {
-			var background = 		"#000000";
-            var text = 		        "#ebebeb";
-			var gradientstart = 	"#001f1f1f";
-			var gradientend = 		"#FF000000";
-			if (settings.ColorBackground === "Black") {
-				background = 	"#000000";
-				gradientstart = "#001f1f1f";
-				gradientend = 	"#FF000000";
-			}
-            else if (settings.ColorBackground === "White") {
-				background = 	"#ebebeb";
-				gradientstart = "#00ebebeb";
-				gradientend = 	"#FFebebeb";
-                text         = 	"#101010";
-			}
-			else if (settings.ColorBackground === "Gray") {
-				background = 	"#1f1f1f";
-				gradientstart = "#001f1f1f";
-				gradientend = 	"#FF1F1F1F";
-			}
-			else if (settings.ColorBackground === "Blue") {
-				background = 	"#1d253d";
-				gradientstart = "#001d253d";
-				gradientend = 	"#FF1d253d";
-			}
-		    else if (settings.ColorBackground === "Green") {
-				background = 	"#054b16";
-				gradientstart = "#00054b16";
-				gradientend = 	"#00054b16";
-			}
-		    else if (settings.ColorBackground === "Red") {
-				background = 	"#520000";
-				gradientstart = "#00520000";
-				gradientend = 	"#FF520000";
-			}
-
-		    var accent = "#288928";
-			if (settings.ColorLayout === "Dark Green") {
-				accent = "#288928";
-			} else if (settings.ColorLayout === "Light Green") {
-				accent = "#65b032";
-			} 
-            else if (settings.ColorLayout === "Turquoise") {
-				accent = "#288e80";
-			}
-            else if (settings.ColorLayout === "Dark Red") {
-				accent = "#ab283b";
-			}
-            else if (settings.ColorLayout === "Light Red") {
-				accent = "#e52939";
-			}
-            else if (settings.ColorLayout === "Dark Pink") {
-				accent = "#c52884";
-			}
-            else if (settings.ColorLayout === "Light Pink") {
-				accent = "#ee6694";
-			}
-            else if (settings.ColorLayout === "Dark Blue") {
-				accent = "#30519c";
-			}
-            else if (settings.ColorLayout === "Light Blue") {
-				accent = "#288dcf";
-			}
-            else if (settings.ColorLayout === "Orange") {
-				accent = "#ed5b28";
-			}
-            else if (settings.ColorLayout === "Yellow") {
-				accent = "#ed9728";
-			}
-            else if (settings.ColorLayout === "Magenta") {
-				accent = "#b857c6";
-			}
-            else if (settings.ColorLayout === "Purple") {
-				accent = "#825fb1";
-			}
-            else if (settings.ColorLayout === "Dark Gray") {
-				accent = "#5e5c5d";
-			}
-            else if (settings.ColorLayout === "Light Gray") {
-				accent = "#818181";
-			}
-            else if (settings.ColorLayout === "Dark Gray") {
-				accent = "#5e5c5d";
-			}
-            else if (settings.ColorLayout === "Steel") {
-				accent = "#768294";
-			}
-            else if (settings.ColorLayout === "Stone") {
-				accent = "#658780";
-			}
-            else if (settings.ColorLayout === "Dark Brown") {
-				accent = "#806044";
-			}
-            else if (settings.ColorLayout === "Light Brown") {
-				accent = "#7e715c";
-			}
-			return {
-				main:           background,
-				secondary:      "#303030",
-				//secondary:      "#cccccc",
-				accent:         accent,
-				highlight:      accent,
-				text:           text,
-				button:         accent,
-				gradientstart:  gradientstart,
-				gradientend:    gradientend
-			};
-		
-        };
-    
-
+	property var theme: Themes.get(settings.ColorBackground, settings.ColorLayout)
     property real globalMargin: vpx(30)
     property real helpMargin: buttonbar.height
     property int transitionTime: 100
@@ -406,6 +286,18 @@ id: root
         root.state = "showcasescreen";
     }
 
+    function settingsScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        root.state = "settingsscreen";
+    }
+
+    function launchGameScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        root.state = "launchgamescreen";
+    }
+
     function gameDetails(game) {
         sfxAccept.play();
         // As long as there is a state history, save the last game
@@ -421,17 +313,6 @@ id: root
         root.state = "gameviewscreen";
     }
 
-    function settingsScreen() {
-        sfxAccept.play();
-        lastState.push(state);
-        root.state = "settingsscreen";
-    }
-
-    function launchGameScreen() {
-        sfxAccept.play();
-        lastState.push(state);
-        root.state = "launchgamescreen";
-    }
 
     function previousScreen() {
         sfxBack.play();
@@ -452,7 +333,6 @@ id: root
     // Set default state to the platform screen
     Component.onCompleted: { 
         root.state = "showcasescreen";
-
         if (fromGame)
             returnedFromGame();
     }
@@ -460,78 +340,46 @@ id: root
     // Background
     Rectangle {
     id: background
-        
         anchors.fill: parent
+        color: theme.primary
         //Image { source: "assets/images/backgrounds/halo.jpg"; fillMode: Image.PreserveAspectFit; anchors.fill: parent;  opacity: 0.3 }
-        color: theme.main
     }
 
-    Loader  {
+    ScreenLoader  {
     id: showcaseLoader
         focus: (root.state === "showcasescreen")
-        active: opacity !== 0
-        opacity: focus ? 1 : 0
-        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-        anchors.fill: parent
         sourceComponent: ShowcaseViewMenu { focus: true }
-        asynchronous: true
     }
 
-    Loader  {
+    ScreenLoader  {
     id: gridviewloader
         focus: (root.state === "softwaregridscreen")
-        active: opacity !== 0
-        opacity: focus ? 1 : 0
-        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-        anchors.fill: parent
         sourceComponent: GridViewMenu { focus: true }
-        asynchronous: true
     }
 
-    Loader  {
+    ScreenLoader  {
     id: searchviewloader
         focus: (root.state === "softwaresearchscreen")
-        active: opacity !== 0
-        opacity: focus ? 1 : 0
-        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-        anchors.fill: parent
         sourceComponent: SearchView { focus: true }
-        asynchronous: true
     }
 
-    Loader  {
+    ScreenLoader  {
     id: gameviewloader
         focus: (root.state === "gameviewscreen")
-        active: opacity !== 0
-        onActiveChanged: if (!active) popLastGame();
-        opacity: focus ? 1 : 0
-        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-        anchors.fill: parent
         sourceComponent: GameView { focus: true; game: currentGame }
-        asynchronous: true
-        //game: currentGame
+        onActiveChanged: if (!active) popLastGame();
     }
 
-    Loader  {
+    ScreenLoader  {
     id: launchgameloader
         focus: (root.state === "launchgamescreen")
-        active: opacity !== 0
-        opacity: focus ? 1 : 0
-        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-        anchors.fill: parent
         sourceComponent: LaunchGame { focus: true }
-        asynchronous: true
     }
 
-    Loader  {
+    ScreenLoader  {
     id: settingsloader
         focus: (root.state === "settingsscreen")
-        active: opacity !== 0
-        opacity: focus ? 1 : 0
-        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-        anchors.fill: parent
         sourceComponent: SettingsScreen { focus: true }
-        asynchronous: true
     }
     
     // Button help

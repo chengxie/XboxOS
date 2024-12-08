@@ -50,7 +50,7 @@ id: root
 		loops: MediaPlayer.Infinite
 		autoLoad: visible
 		autoPlay: visible
-		opacity: details.visible ? 0.3 : 1
+		opacity: details.needHide ? 1 : 0.3
 		Image {
 			anchors.fill: parent
 			source: "../assets/images/scanlines_v3.png"
@@ -64,7 +64,7 @@ id: root
 			hoverEnabled: settings.MouseHover == "Yes"
 			onClicked: {
 				sfxToggle.play();
-				details.visible = !details.visible;
+				details.toggle();
 			}
 		}
 	}
@@ -165,28 +165,31 @@ id: root
 		Image {
 		id: gameLogo
 			anchors {
-                bottom: parent.bottom; bottomMargin: globalMargin
+				left: parent.left; leftMargin: globalMargin
+                //bottom: parent.bottom; bottomMargin: globalMargin
 			}
             width: parent.width * 0.2
             source: Utils.logo(game);
             fillMode: Image.PreserveAspectFit
             asynchronous: true
             smooth: true
-			visible: vid.opacity == 1
-			opacity: visible ? 1 : 0
-			x: visible ? parent.x + globalMargin : parent.width
-            Behavior on x { NumberAnimation { duration: 300 } }
-            Behavior on opacity { NumberAnimation { duration: 300 } }
+			visible: vid.opacity === 1
+
+			//x: visible ? parent.x + globalMargin : parent.width
+            //Behavior on x { NumberAnimation { duration: 300 } }
+
+			y: visible ? parent.height - height - globalMargin : parent.height
+            Behavior on y { NumberAnimation { duration: 100 } }
 		}
 
 		DropShadow {
+			source: gameLogo
 			anchors.fill: gameLogo
 			horizontalOffset: vpx(2)
 			verticalOffset: horizontalOffset
 			radius: 8.0
 			samples: 12
 			color: "#000000"
-			source: gameLogo
 		}
 
         Item {
@@ -199,14 +202,22 @@ id: root
 				bottom: parent.bottom; bottomMargin: vpx(70)
             }
 
+			property bool needHide: false
+			function toggle() {
+				needHide = !needHide;
+				//console.log("gameLogo: " + gameLogo.height);
+			}
+
             Image {
             id: boxart
                 source: Utils.boxArt(game);
                 width: vpx(260)
-                height: width / 0.7 //parent.height
+                height: width / 0.7
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
                 smooth: true
+				x: !details.needHide ? details.x : root.x - width - details.anchors.leftMargin
+				Behavior on x { NumberAnimation { duration: 100 } }
             }
 
 			Button { 
@@ -232,9 +243,11 @@ id: root
             GameInfo {
             id: info
                 anchors {
-                    left: boxart.right; leftMargin: vpx(30)
-                    top: parent.top; bottom: parent.bottom; right: parent.right
+					top: parent.top; bottom: parent.bottom;
                 }
+				x: !details.needHide ? details.x + boxart.width + globalMargin : root.width
+				width: details.width - (details.anchors.leftMargin * 2 + boxart.width + globalMargin)
+				Behavior on x { NumberAnimation { duration: 100 } }
             }
         }
     }
@@ -251,7 +264,7 @@ id: root
         if (api.keys.isDetails(event) && !event.isAutoRepeat) {
             event.accepted = true;
 			sfxToggle.play();
-			details.visible = !details.visible;
+			details.toggle();
         }
         // Filters
         if (api.keys.isFilters(event) && !event.isAutoRepeat) {
