@@ -23,10 +23,6 @@ id: root
     ListModel {
     id: settingsModel
 
-        /*ListElement {
-            settingName: "Game View"
-            setting: "Grid,Vertical List"
-        }*/
         ListElement {
             settingName: "Allow video thumbnails"
             setting: "Yes,No"

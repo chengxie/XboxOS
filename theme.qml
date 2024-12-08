@@ -18,7 +18,6 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.11
 import SortFilterProxyModel 0.2
 import QtMultimedia 5.9
-import "VerticalList"
 import "GridView"
 import "Global"
 import "GameDetails"
@@ -52,7 +51,6 @@ id: root
     // Load settings
     property var settings: {
         return {
-            PlatformView:                  api.memory.has("Game View") ? api.memory.get("Game View") : "Grid",
             GridColumns:                   api.memory.has("Number of columns") ? api.memory.get("Number of columns") : "7",
             GameBackground:                api.memory.has("Game Background") ? api.memory.get("Game Background") : "Screenshot",
             GameLogo:                      api.memory.has("Game Logo") ? api.memory.get("Game Logo") : "Show",
@@ -366,9 +364,6 @@ id: root
     // State settings
     states: [
         State {
-            name: "softwarescreen";
-        },
-        State {
             name: "softwaregridscreen";
         },
 		State {
@@ -396,13 +391,7 @@ id: root
         sfxAccept.play();
         lastState.push(state);
         searchTerm = "";
-        switch(settings.PlatformView) {
-            case "Grid":
-                root.state = "softwaregridscreen";
-                break;
-            default:
-                root.state = "softwarescreen";
-        }
+        root.state = "softwaregridscreen";
     }
 
 	function searchScreen() {
@@ -473,148 +462,77 @@ id: root
     id: background
         
         anchors.fill: parent
-        // Image { source: "assets/images/backgrounds/halo.jpg"; fillMode: Image.PreserveAspectFit; anchors.fill: parent;  opacity: 0.3 }
+        //Image { source: "assets/images/backgrounds/halo.jpg"; fillMode: Image.PreserveAspectFit; anchors.fill: parent;  opacity: 0.3 }
         color: theme.main
     }
 
     Loader  {
     id: showcaseLoader
-
         focus: (root.state === "showcasescreen")
         active: opacity !== 0
         opacity: focus ? 1 : 0
         Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-
         anchors.fill: parent
-        sourceComponent: showcaseview
+        sourceComponent: ShowcaseViewMenu { focus: true }
         asynchronous: true
     }
 
     Loader  {
     id: gridviewloader
-
         focus: (root.state === "softwaregridscreen")
         active: opacity !== 0
         opacity: focus ? 1 : 0
         Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-
         anchors.fill: parent
-        sourceComponent: gridview
+        sourceComponent: GridViewMenu { focus: true }
         asynchronous: true
     }
 
     Loader  {
     id: searchviewloader
-
         focus: (root.state === "softwaresearchscreen")
         active: opacity !== 0
         opacity: focus ? 1 : 0
         Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-
         anchors.fill: parent
-        sourceComponent: searchview
-        asynchronous: true
-    }
-
-    Loader  {
-    id: listviewloader
-
-        focus: (root.state === "softwarescreen")
-        active: opacity !== 0
-        opacity: focus ? 1 : 0
-        Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-
-        anchors.fill: parent
-        sourceComponent: listview
+        sourceComponent: SearchView { focus: true }
         asynchronous: true
     }
 
     Loader  {
     id: gameviewloader
-
         focus: (root.state === "gameviewscreen")
         active: opacity !== 0
         onActiveChanged: if (!active) popLastGame();
         opacity: focus ? 1 : 0
         Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-
         anchors.fill: parent
-        sourceComponent: gameview
+        sourceComponent: GameView { focus: true; game: currentGame }
         asynchronous: true
         //game: currentGame
     }
 
     Loader  {
     id: launchgameloader
-
         focus: (root.state === "launchgamescreen")
         active: opacity !== 0
         opacity: focus ? 1 : 0
         Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-
         anchors.fill: parent
-        sourceComponent: launchgameview
+        sourceComponent: LaunchGame { focus: true }
         asynchronous: true
     }
 
     Loader  {
     id: settingsloader
-
         focus: (root.state === "settingsscreen")
         active: opacity !== 0
         opacity: focus ? 1 : 0
         Behavior on opacity { PropertyAnimation { duration: transitionTime } }
-
         anchors.fill: parent
-        sourceComponent: settingsview
+        sourceComponent: SettingsScreen { focus: true }
         asynchronous: true
     }
-
-    Component {
-    id: showcaseview
-
-        ShowcaseViewMenu { focus: true }
-    }
-
-    Component {
-    id: gridview
-
-        GridViewMenu { focus: true }
-    }
-
-    Component {
-    id: searchview
-
-        SearchView { focus: true }
-    }
-
-    Component {
-    id: listview
-
-        SoftwareListMenu { focus: true }
-    }
-
-    Component {
-    id: gameview
-
-        GameView {
-            focus: true
-            game: currentGame
-        }
-    }
-
-    Component {
-    id: launchgameview
-
-        LaunchGame { focus: true }
-    }
-
-    Component {
-    id: settingsview
-
-        SettingsScreen { focus: true }
-    }
-
     
     // Button help
     property var currentHelpbarModel

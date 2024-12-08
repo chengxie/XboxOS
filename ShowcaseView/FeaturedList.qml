@@ -109,8 +109,6 @@ id: root
 
 		focus: root.focus
 		anchors.fill: parent
-		//width: parent.width
-		//height: gameVideoHeight
 		orientation: ListView.Horizontal
 		preferredHighlightBegin: vpx(0)
 		preferredHighlightEnd: parent.width
@@ -236,7 +234,7 @@ id: root
 							horizontalCenter: gameLogo.horizontalCenter
 						}                            
 						font {
-							pixelSize: vpx(24)
+							pixelSize: vpx(28)
 							family: subtitleFont.name
 							bold: true
 						}
@@ -245,7 +243,7 @@ id: root
 						styleColor: theme.main
 						elide: Text.ElideRight
 						wrapMode: Text.WordWrap
-						lineHeight: 0.8
+						//lineHeight: 0.8
 						horizontalAlignment: Text.AlignHCenter
 						verticalAlignment: Text.AlignVCenter
 					}
@@ -300,7 +298,7 @@ id: root
 		id: blips
 
 			anchors.horizontalCenter: parent.horizontalCenter
-			anchors { top: parent.top; topMargin: root.height - vpx(40) }
+			anchors { bottom: parent.bottom; bottomMargin: vpx(50) }
 			spacing: vpx(10)
 			Repeater {
 				model: featuredList.count

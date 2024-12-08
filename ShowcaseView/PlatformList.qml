@@ -123,6 +123,7 @@ id: root
 				}
 			}
 
+
 			Rectangle {
 			id: regborder
 				visible: false

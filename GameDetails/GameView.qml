@@ -178,6 +178,7 @@ id: root
             Behavior on x { NumberAnimation { duration: 300 } }
             Behavior on opacity { NumberAnimation { duration: 300 } }
 		}
+
 		DropShadow {
 			anchors.fill: gameLogo
 			horizontalOffset: vpx(2)

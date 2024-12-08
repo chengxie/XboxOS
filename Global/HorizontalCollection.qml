@@ -59,7 +59,7 @@ id: root
         }
 		property int cellWidth: (width - globalMargin * 2 + spacing)  / numColumns - spacing
 		property int cellHeight: cellWidth * fakebox.ratio
-        spacing: (width - globalMargin * 2) / numColumns * 0.08
+        spacing: (width - globalMargin * 2) / numColumns * 0.09
         snapMode: ListView.SnapOneItem 
         orientation: ListView.Horizontal
 		preferredHighlightBegin: globalMargin
