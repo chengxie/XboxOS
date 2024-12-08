@@ -46,8 +46,8 @@ id: root
     signal activate
     signal highlighted
 
-	property bool showHighlightTitle: true
-	property bool showTitle: true
+	property bool showTitles: settings.AlwaysShowTitles === "Yes"
+	property bool showHighlightedTitles: settings.AlwaysShowHighlightedTitles === "Yes"
 	property int verticalSpacing: 0
 	property int horizontalSpacing: 0
     property bool selected
@@ -61,9 +61,15 @@ id: root
     Behavior on scale { NumberAnimation { duration: 100 } }
     z: selected ? 10 : 1
 
+	Rectangle {
+	id: videoBg
+		anchors.fill: parent
+		color: "black"
+        opacity: selected ? 0 : 1
+        Behavior on opacity { NumberAnimation { duration: 1000 } }
+	}
     Item {
     id: container
-
 		anchors {
 			fill: parent
 			bottomMargin: verticalSpacing
@@ -75,12 +81,11 @@ id: root
 
         Image {
         id: screenshot
-
             anchors.fill: parent
             anchors.margins: vpx(2)
             source: modelData ? modelData.assets.screenshots[0] || modelData.assets.background || "" : ""
-            fillMode: Image.PreserveAspectCrop
             sourceSize { width: 512; height: 512 }
+            fillMode: Image.PreserveAspectCrop
             smooth: false
             asynchronous: true
             Behavior on opacity { NumberAnimation { duration: 200 } }
@@ -88,64 +93,77 @@ id: root
 
         Image {
         id: favelogo
-
             property var logoImage: (gameData && gameData.collections.get(0).shortName === "retropie") ? gameData.assets.boxFront : (gameData.collections.get(0).shortName === "steam") ? logo(gameData) : gameData.assets.logo
             source: modelData ? logoImage || "" : ""
             sourceSize { width: 200; height: 150 }
             fillMode: Image.PreserveAspectFit
             asynchronous: true
             smooth: true
-            z: 10
-
             // 根据选中状态调整位置和大小            
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            width: (selected && !hideLogoForPlayVideo) ? parent.width * 0.3 : parent.width * 0.8
-            anchors.horizontalCenterOffset: (selected && !hideLogoForPlayVideo) ? - (parent.width / 2 - width / 2 - 10) : 0
-            anchors.verticalCenterOffset: (selected && !hideLogoForPlayVideo) ? (parent.height / 2 - height / 2 - 10) : 0
-            // 添加动画过渡效果
-            Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: 200 } }
-            Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: 200 } }
-
+            width: parent.width * 0.8
+            //width: (selected && !hideLogoForPlayVideo) ? parent.width * 0.3 : parent.width * 0.8
+            //anchors.horizontalCenterOffset: (selected && !hideLogoForPlayVideo) ? - (parent.width / 2 - width / 2 - 10) : 0
+            //anchors.verticalCenterOffset: (selected && !hideLogoForPlayVideo) ? (parent.height / 2 - height / 2 - 10) : 0
+            //// 添加动画过渡效果
+            //Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: 200 } }
+            //Behavior on anchors.verticalCenterOffset { NumberAnimation { duration: 200 } }
         }
 
-        Rectangle {
-        id: overlay
-        
-            anchors.fill: parent
-            color: screenshot.source == "" ? theme.secondary : "black"
-            //opacity: screenshot.source == "" ? 1 : selected ? 0.1 : 0.2
-            opacity: (selected && playVideo && !hideLogoForPlayVideo) ? 0 : (screenshot.source == "") ? 0.5 : 0.2
-        }
-        
+		Rectangle {
+		id: favicon
+
+			anchors { 
+				right: parent.right; rightMargin: vpx(7)
+				top: parent.top; topMargin: vpx(7) 
+			}
+            width: vpx(20)
+			height: width
+			radius: width/2
+			color: theme.accent
+			visible: gameData.favorite
+			Image {
+				source: "../assets/images/favicon.svg"
+				asynchronous: true
+				anchors.fill: parent
+				anchors.margins: parent.width / 6
+			}
+		}
+
         Rectangle {
         id: regborder
-
             anchors.fill: parent
             color: "transparent"
             border.width: vpx(1)
             border.color: "white"
             opacity: 0.1
         }
-        
+
+        Rectangle {
+        id: overlay
+            anchors.fill: parent
+            color: screenshot.source == "" ? theme.secondary : "black"
+            opacity: (selected && playVideo && !hideLogoForPlayVideo) ? 0 : (screenshot.source == "") ? 0.5 : 0.2
+        }
+         
     }
 
-    Loader {
-    id: borderloader
+	DropShadow {
+		visible: settings.Showshadow === "Yes"
+		anchors.fill: container
+		horizontalOffset: selected ? g_shadowSize * 2 : g_shadowSize
+		verticalOffset: horizontalOffset
+		radius: 8.0
+		samples: 12
+		color: "#000000"
+		source: container
+	}
 
-        active: selected
-        anchors.fill: container
-        sourceComponent: border
-        asynchronous: true     
-    }
-
-    Component {
-    id: border
-
-		ItemBorder { 
-			showTitle: showHighlightTitle
-		}
-    }
+	ItemBorder {
+		anchors.fill: container
+		showHighlightedTitles: root.showHighlightedTitles
+	}
 
     Text {
     id: title
@@ -153,7 +171,7 @@ id: root
             top: container.bottom; topMargin: vpx(5)
             left: parent.left; right: parent.right
         }
-        visible: showTitle && !selected
+        visible: showTitles && !selected
         text: modelData ? modelData.title : ''
         color: theme.text
         font {
@@ -185,26 +203,6 @@ id: root
         lineHeight: 0.8
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-    }
-
-    Rectangle {
-    id: favicon
-
-        anchors { 
-            right: parent.right; rightMargin: vpx(10); 
-            top: parent.top; topMargin: vpx(10) 
-        }
-        width: parent.width / 12
-        height: width
-        radius: width/2
-        color: theme.accent
-        visible: gameData.favorite
-        Image {
-            source: "../assets/images/favicon.svg"
-            asynchronous: true
-            anchors.fill: parent
-            anchors.margins: parent.width / 6
-        }
     }
 
     Loader {

@@ -134,18 +134,6 @@ id: root
 
     ListCollectionGames { id: list; }
 
-    // Load settings
-    property bool showBoxes: settings.GridThumbnail === "Box Art"
-    property int numColumns: settings.GridColumns ? settings.GridColumns : 6
-    property int titleMargin: vpx(50)   // 需要给boder的文字留空间 settings.AlwaysShowTitles === "Yes" ? vpx(50) : 0
-
-    GridSpacer {
-    id: fakebox
-
-        width: vpx(100); height: vpx(100)
-        games: list.games
-    }
-
     Rectangle {
     id: navigationOverlay
         anchors.fill: parent;
@@ -202,148 +190,24 @@ id: root
         }
     }
 
-    Item {
-    id: gridContainer
 
-        anchors {
-            top: header.bottom; topMargin: globalMargin
-            left: parent.left; leftMargin: globalMargin
-            right: parent.right; rightMargin: globalMargin
-            bottom: parent.bottom; bottomMargin: globalMargin
-        }
 
-        GridView {
-        id: gamegrid
-
-            // Figuring out the aspect ratio for box art
-            property real cellHeightRatio: fakebox.paintedHeight / fakebox.paintedWidth
-            property real savedCellHeight: {
-                if (settings.GridThumbnail == "Tall") {
-                    return cellWidth / settings.TallRatio;
-                } else if (settings.GridThumbnail == "Square") {
-                    return cellWidth;
-                } else {
-                    return cellWidth * settings.WideRatio;
-                }
-            }
-
-            Component.onCompleted: {
-                currentIndex = storedCollectionGameIndex;
-                positionViewAtIndex(currentIndex, GridView.Visible);
-            }
-
-            //populate: Transition {
-                //NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 400 }
-            //}
-
-            anchors {
-                top: parent.top; left: parent.left; right: parent.right;
-                bottom: parent.bottom; bottomMargin: helpMargin + vpx(40)
-            }
-
-            cellWidth: width / numColumns + vpx(14)
-            cellHeight: ((showBoxes) ? (cellWidth - vpx(14)) * cellHeightRatio : savedCellHeight) + titleMargin + vpx(8)
-            preferredHighlightBegin: vpx(0)
-            preferredHighlightEnd: gamegrid.height - helpMargin - vpx(40)
-            highlightRangeMode: GridView.StrictlyEnforceRange
-            highlightMoveDuration: 200
-            highlight: highlightcomponent
-            keyNavigationWraps: false
-            displayMarginBeginning: cellHeight * 2
-            displayMarginEnd: cellHeight * 2
-            
-            model: list.games
-            delegate: (showBoxes) ? boxartDelegate : dynamicDelegate
-
-            Component {
-            id: boxartDelegate
-
-                BoxArtGridItem {
-                    selected:	GridView.isCurrentItem && root.focus
-                    width:      GridView.view.cellWidth - vpx(14)
-                    height:     GridView.view.cellHeight - titleMargin - vpx(8)
-					showTitle:	settings.AlwaysShowTitles === "Yes"
-                    
-                    onActivate: {
-                        if (selected)
-                            gameActivated();
-                        else
-                            gamegrid.currentIndex = index;
-                    }
-                    onHighlighted: {
-                        gamegrid.currentIndex = index;
-                    }
-                    Keys.onPressed: {
-                        // Toggle favorite
-                        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
-                            event.accepted = true;
-                            sfxToggle.play();
-                            modelData.favorite = !modelData.favorite;
-                        }
-                    }
-
-                }
-            }
-
-            Component {
-            id: dynamicDelegate
-
-                DynamicGridItem {
-
-                    selected:	GridView.isCurrentItem && root.focus
-                    width:      GridView.view.cellWidth
-                    height:     GridView.view.cellHeight - titleMargin
-					showTitle:	settings.AlwaysShowTitles === "Yes"
-                    
-                    onActivate: {
-                        if (selected)
-                            gameActivated();
-                        else
-                            gamegrid.currentIndex = index;
-						console.log("1111111")
-                    }
-                    onHighlighted: {
-                        gamegrid.currentIndex = index;
-						console.log("222222")
-                    }
-                    Keys.onPressed: {
-                        // Toggle favorite
-                        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
-                            event.accepted = true;
-                            sfxToggle.play();
-                            modelData.favorite = !modelData.favorite;
-                        }
-                    }
-                }
-            }
-
-            Component {
-            id: highlightcomponent
-
-                ItemHighlight {
-                    width: gamegrid.cellWidth
-                    height: gamegrid.cellHeight
-                    game: list.currentGame(gamegrid.currentIndex)
-                    selected: gamegrid.focus
-                    boxArt: showBoxes
-                }
-            }
-
-            // Manually set the navigation this way so audio can play without performance hits
-            Keys.onUpPressed: {
-                sfxNav.play();
-                if (currentIndex < numColumns) {
-                    headercontainer.focus = true;
-                    gamegrid.currentIndex = -1;
-                } else {
-                    moveCurrentIndexUp();
-                }
-            }
-            Keys.onDownPressed:     { sfxNav.play(); moveCurrentIndexDown() }
-            Keys.onLeftPressed:     { sfxNav.play(); moveCurrentIndexLeft() }
-            Keys.onRightPressed:    { sfxNav.play(); moveCurrentIndexRight() }
-        }
-
+	GridViewBox {
+	id: gamegrid
+		anchors {
+			top: header.bottom; topMargin: globalMargin
+			left: parent.left; leftMargin: globalMargin
+			right: parent.right; rightMargin: globalMargin
+			bottom: parent.bottom; bottomMargin: globalMargin
+		}
+		gameList: list
+		Keys.onUpPressed: {
+			if (currentIndex < numColumns) {
+				sfxNav.play();
+				headercontainer.focus = true;
+				//currentIndex = -1;
+			}
+		}
     }
 
     Keys.onReleased: {

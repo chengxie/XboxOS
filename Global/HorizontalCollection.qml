@@ -22,18 +22,18 @@ import "../GridView"
 FocusScope {
 id: root
 	property var collection
-    property var search
-    property int itemWidth: vpx(150)
-    property int itemHeight: itemWidth*1.5
     property alias collectionList: collectionList
     property alias currentIndex: collectionList.currentIndex
     property alias title: collectiontitle.text
-    property alias model: collectionList.model
-    property alias delegate: collectionList.delegate
-    property bool showBoxes: false
+	property bool showTitles: settings.AlwaysShowTitles === "Yes"
+	property bool showHighlightedTitles: showTitles
+	property int numColumns: settings.GridColumns ? settings.GridColumns : 6
+	property var gameList
 
     signal activateSelected
     signal listHighlighted
+
+	GridSpacer { id: fakebox; collection: gameList.collection }
 
     Text {
     id: collectiontitle
@@ -50,27 +50,23 @@ id: root
     ListView {
     id: collectionList
 
-		//property var collection
-
         focus: root.focus
         anchors {
-            top: collectiontitle.bottom; topMargin: vpx(10)
+            top: collectiontitle.bottom; topMargin: spacing
             left: parent.left
             right: parent.right
             bottom: parent.bottom
         }
-        spacing: vpx(12)
-
+		property int cellWidth: (width - globalMargin * 2 + spacing)  / numColumns - spacing
+		property int cellHeight: cellWidth * fakebox.ratio
+        spacing: (width - globalMargin * 2) / numColumns * 0.08
         snapMode: ListView.SnapOneItem 
         orientation: ListView.Horizontal
 		preferredHighlightBegin: globalMargin
 		preferredHighlightEnd: parent.width - globalMargin
 		highlightRangeMode: ListView.StrictlyEnforceRange
 		highlightMoveDuration: 200
-        highlight: highlightcomponent
-        keyNavigationWraps: true
-
-        currentIndex: collection.index
+        keyNavigationWraps: false
 
         onFocusChanged: {
             if (focus) {
@@ -78,6 +74,7 @@ id: root
 			} else {
                 collection.index = currentIndex;
             }
+			//console.log("collectionList focus changed to", focus, "currentIndex", currentIndex);
         }
 
 		Component.onDestruction: {
@@ -85,76 +82,37 @@ id: root
 		}
 
 		Component.onCompleted: {
+			currentIndex: collection.index
 			positionViewAtIndex(currentIndex, ListView.Visible)
 		}
 
-        model: search.games ? search.games : api.allGames
-
-        delegate: showBoxes ? boxartDelegate : dynamicDelegate
-
-        Component {
-        id: boxartDelegate
-
-            BoxArtGridItem {
-                selected: ListView.isCurrentItem && collectionList.focus
-                width: itemWidth
-                height: itemHeight
-				showTitle: settings.AlwaysShowTitles === "Yes"
-				onActivate: {
-					if (selected) {
-						activateSelected();
-					} else {
-						collectionList.currentIndex = index;
-					}
+        model: gameList.games ? gameList.games : api.allGames
+        delegate: BoxArtGridItem {
+			selected:				ListView.isCurrentItem && ListView.view.focus
+			width:					ListView.view.cellWidth
+			height:					ListView.view.cellHeight
+			showTitles:				root.showTitles
+			showHighlightedTitles:	root.showHighlightedTitles
+			onActivate: {
+				if (selected) {
+					activateSelected();
+				} else {
+					ListView.view.currentIndex = index;
 				}
-				onHighlighted: {
-					listHighlighted();
-					collectionList.currentIndex = index;
-				}
-            }
-        }
-
-        Component {
-        id: dynamicDelegate
-
-            DynamicGridItem {
-                selected: ListView.isCurrentItem && collectionList.focus
-                width: itemWidth
-                height: itemHeight
-				showTitle: settings.AlwaysShowTitles === "Yes"
-                onActivate: {
-                    if (selected) {
-                        activateSelected();
-                    } else {
-                        collectionList.currentIndex = index;
-                    }
-                }
-				onHighlighted: {
-					listHighlighted();
-					collectionList.currentIndex = index;
-				}
-            }
-        }
-
-        Component {
-        id: highlightcomponent
-
-            ItemHighlight {
-                width: collectionList.cellWidth
-                height: collectionList.cellHeight
-                game: search ? search.currentGame(collectionList.currentIndex) : ""
-                selected: collectionList.focus
-                boxArt: showBoxes
-            }
-        }
+			}
+			onHighlighted: {
+				listHighlighted();
+				ListView.view.currentIndex = index;
+			}
+		}
 
 		Keys.onLeftPressed: {
 			sfxNav.play();
-			collectionList.decrementCurrentIndex()
+			decrementCurrentIndex()
 		}
 		Keys.onRightPressed: {
 			sfxNav.play();
-			collectionList.incrementCurrentIndex()
+			incrementCurrentIndex()
 		}
 
     }

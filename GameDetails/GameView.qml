@@ -29,8 +29,73 @@ FocusScope {
 id: root
 
     property var game: api.allGames.get(0)
-    property string favIcon: game && game.favorite ? "../assets/images/icon_heart.svg" : "../assets/images/icon_unheart.svg"
     anchors.fill: parent
+
+
+	Video {
+		id: vid
+		property bool videoExists: game ? game.assets.videoList.length : false
+		visible : settings.VideoPreview === "Yes"
+
+		source: (visible && videoExists) ? game.assets.videoList[0] : ""
+		width: parent.width
+		height: parent.width * 0.75
+		anchors {
+			top: parent.top; topMargin: - parent.height * 0.3
+			left: parent.left;
+		}
+
+		fillMode: VideoOutput.PreserveAspectCrop
+		muted: settings.AllowVideoPreviewAudio === "No"
+		loops: MediaPlayer.Infinite
+		autoLoad: visible
+		autoPlay: visible
+		opacity: details.visible ? 0.3 : 1
+		Image {
+			anchors.fill: parent
+			source: "../assets/images/scanlines_v3.png"
+			fillMode: Image.Tile
+			opacity: 0.2 / parent.opacity
+			visible: settings.ShowScanlines == "Yes"
+		}
+		// Mouse/touch functionality
+		MouseArea {
+			anchors.fill: parent
+			hoverEnabled: settings.MouseHover == "Yes"
+			onClicked: {
+				sfxToggle.play();
+				details.visible = !details.visible;
+			}
+		}
+	}
+
+	LinearGradient {
+		anchors {
+			left: parent.left; top: parent.top
+		}
+		width: parent.width
+		height: vpx(120)
+		start: Qt.point(0, 0)
+		end: Qt.point(0, height)
+		gradient: Gradient {
+			GradientStop { position: 0.0; color: "#FF000000" }
+			GradientStop { position: 1.0; color: "#00000000" }
+		}
+	} 
+
+	LinearGradient {
+		anchors {
+			left: parent.left; bottom: parent.bottom
+		}
+		width: parent.width
+		height: vpx(150)
+		start: Qt.point(0, height)
+		end: Qt.point(0, 0)
+		gradient: Gradient {
+			GradientStop { position: 0.0; color: "#FF000000" }
+			GradientStop { position: 1.0; color: "#00000000" }
+		}
+	} 
 
     // Header
     Item {
@@ -97,32 +162,30 @@ id: root
         
         anchors.fill: parent
 
-		Video {
-		id: vid
-			property bool videoExists: game ? game.assets.videoList.length : false
-			visible : settings.VideoPreview === "Yes"
-
-			source: (visible && videoExists) ? game.assets.videoList[0] : ""
-			width: parent.width
-			height: parent.width * 0.75
+		Image {
+		id: gameLogo
 			anchors {
-				top: parent.top; topMargin: - parent.height * 0.3
-				left: parent.left;
+                bottom: parent.bottom; bottomMargin: globalMargin
 			}
-
-			fillMode: VideoOutput.PreserveAspectCrop
-			muted: settings.AllowVideoPreviewAudio === "No"
-			loops: MediaPlayer.Infinite
-			autoLoad: visible
-			autoPlay: visible
-			opacity: 0.3
-			Image {
-				anchors.fill: parent
-				source: "../assets/images/scanlines_v3.png"
-				fillMode: Image.Tile
-				opacity: 0.6
-				visible: settings.ShowScanlines == "Yes"
-			}
+            width: parent.width * 0.2
+            source: Utils.logo(game);
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+            smooth: true
+			visible: vid.opacity == 1
+			opacity: visible ? 1 : 0
+			x: visible ? parent.x + globalMargin : parent.width
+            Behavior on x { NumberAnimation { duration: 300 } }
+            Behavior on opacity { NumberAnimation { duration: 300 } }
+		}
+		DropShadow {
+			anchors.fill: gameLogo
+			horizontalOffset: vpx(2)
+			verticalOffset: horizontalOffset
+			radius: 8.0
+			samples: 12
+			color: "#000000"
+			source: gameLogo
 		}
 
         Item {
@@ -134,11 +197,9 @@ id: root
                 right: parent.right; rightMargin: vpx(70)
 				bottom: parent.bottom; bottomMargin: vpx(70)
             }
-            //height: vpx(450) - header.height
 
             Image {
             id: boxart
-
                 source: Utils.boxArt(game);
                 width: vpx(260)
                 height: width / 0.7 //parent.height
@@ -147,60 +208,24 @@ id: root
                 smooth: true
             }
 
-			ListView {
-			id: menu
-
-				//property bool selected: parent.focus
-				focus: true
-				width: playButton.width + favoriteButton.width + spacing
-				height: vpx(50)
+			Button { 
+			id: playButton
 				anchors {
 					top: boxart.bottom; topMargin: vpx(25)
-					left: boxart.left; leftMargin: (boxart.width - width) / 2
+					horizontalCenter: boxart.horizontalCenter
 				}
-				orientation: ListView.Horizontal
-				spacing: vpx(10)
-				keyNavigationWraps: true
+				text: "Play game"
+				selected: true
 
-				model: ObjectModel {
-
-					Button { 
-					id: playButton
-						text: "Play game"
-						height: parent.height
-						selected: ListView.isCurrentItem && menu.focus
-						onHighlighted: { menu.currentIndex = ObjectModel.index; }
-						onActivated: 
-							if (selected) {
-								sfxAccept.play();
-								launchGame(game);
-							} else {
-								sfxNav.play();
-								menu.currentIndex = ObjectModel.index;
-							}
-					}
-
-					Button { 
-					id: favoriteButton
-						property string buttonText: game && game.favorite ? "Unfavorite" : "Add favorite"
-						icon: favIcon
-						height: parent.height
-						selected: ListView.isCurrentItem && menu.focus
-						onHighlighted: { menu.currentIndex = ObjectModel.index; }
-						onActivated: {
-							if (selected) {
-								sfxToggle.play();
-								game.favorite = !game.favorite;
-							} else {
-								sfxNav.play();
-								menu.currentIndex = ObjectModel.index;
-							}
-						}
+				// Mouse/touch functionality
+				MouseArea {
+					anchors.fill: parent
+					hoverEnabled: settings.MouseHover == "Yes"
+					onClicked: {
+						sfxAccept.play();
+						launchGame(game);
 					}
 				}
-
-				Keys.onLeftPressed: { sfxNav.play(); decrementCurrentIndex() }
-				Keys.onRightPressed: { sfxNav.play(); incrementCurrentIndex() }
 			}
 
             GameInfo {
@@ -221,11 +246,24 @@ id: root
             event.accepted = true;
             previousScreen();
         }
+        // Details
+        if (api.keys.isDetails(event) && !event.isAutoRepeat) {
+            event.accepted = true;
+			sfxToggle.play();
+			details.visible = !details.visible;
+        }
         // Filters
         if (api.keys.isFilters(event) && !event.isAutoRepeat) {
             event.accepted = true;
 			sfxToggle.play();
             game.favorite = !game.favorite;
+        }
+        // Accept
+        if (api.keys.isAccept(event) && !event.isAutoRepeat) {
+            event.accepted = true;
+			sfxAccept.play();
+			launchGame(game);
+			console.log("Game launched !!!!!!");
         }
     }
 
@@ -238,11 +276,15 @@ id: root
             button: "cancel"
         }
         ListElement {
+            name: "Toggle details"
+            button: "details"
+        }
+        ListElement {
             name: "Toggle favorite"
             button: "filters"
         }
         ListElement {
-            name: "Launch"
+            name: "Play"
             button: "accept"
         }
     }
@@ -250,8 +292,6 @@ id: root
     onFocusChanged: { 
         if (focus) { 
             currentHelpbarModel = gameviewHelpModel;
-            menu.focus = true;
-            menu.currentIndex = 0; 
         }
     }
 

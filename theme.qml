@@ -45,7 +45,6 @@ id: root
     ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub }
     ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre }
 	ListPlatforms	{ id: listPlatforms;   max: 0; property int index: -1 }
-	
 
     property string randoPub: (Utils.returnRandom(Utils.uniqueValuesArray('publisher')) || '')
     property string randoGenre: (Utils.returnRandom(Utils.uniqueValuesArray('genreList'))[0] || '').toLowerCase()
@@ -54,8 +53,7 @@ id: root
     property var settings: {
         return {
             PlatformView:                  api.memory.has("Game View") ? api.memory.get("Game View") : "Grid",
-            GridThumbnail:                 api.memory.has("Grid Thumbnail") ? api.memory.get("Grid Thumbnail") : "Dynamic Wide",
-            GridColumns:                   api.memory.has("Number of columns") ? api.memory.get("Number of columns") : "3",
+            GridColumns:                   api.memory.has("Number of columns") ? api.memory.get("Number of columns") : "7",
             GameBackground:                api.memory.has("Game Background") ? api.memory.get("Game Background") : "Screenshot",
             GameLogo:                      api.memory.has("Game Logo") ? api.memory.get("Game Logo") : "Show",
             GameRandomBackground:          api.memory.has("Randomize Background") ? api.memory.get("Randomize Background") : "No",
@@ -67,70 +65,38 @@ id: root
             HideButtonHelp:                api.memory.has("Hide button help") ? api.memory.get("Hide button help") : "No",
             ColorLayout:                   api.memory.has("Color Layout") ? api.memory.get("Color Layout") : "Dark Green",
 			ColorBackground:               api.memory.has("Color Background") ? api.memory.get("Color Background") : "Black",
+            Showshadow:					   api.memory.has("Show shadow") ? api.memory.get("Show shadow") : "Yes",
             MouseHover:                    api.memory.has("Enable mouse hover") ? api.memory.get("Enable mouse hover") : "No",
             AlwaysShowTitles:              api.memory.has("Always show titles") ? api.memory.get("Always show titles") : "No",
-            AnimateHighlight:              api.memory.has("Animate highlight") ? api.memory.get("Animate highlight") : "No",
+            AlwaysShowHighlightedTitles:   api.memory.has("Always show highlighted titles") ? api.memory.get("Always show highlighted titles") : "No",
+            BorderHighlight:               api.memory.has("Border highlight") ? api.memory.get("Border highlight") : "No",
             AllowVideoPreviewAudio:        api.memory.has("Video preview audio") ? api.memory.get("Video preview audio") : "No",
             ShowScanlines:                 api.memory.has("Show scanlines") ? api.memory.get("Show scanlines") : "Yes",
             ShowcaseColumns:               api.memory.has("Number of games showcased") ? api.memory.get("Number of games showcased") : "15",
             ShowcaseFeaturedCollection:    api.memory.has("Featured collection") ? api.memory.get("Featured collection") : "Favorites",
             ShowcaseCollection1:           api.memory.has("Collection 1") ? api.memory.get("Collection 1") : "Recently Played",
-            ShowcaseCollection1_Thumbnail: api.memory.has("Collection 1 - Thumbnail") ? api.memory.get("Collection 1 - Thumbnail") : "Wide",
             ShowcaseCollection2:           api.memory.has("Collection 2") ? api.memory.get("Collection 2") : "Most Played",
-            ShowcaseCollection2_Thumbnail: api.memory.has("Collection 2 - Thumbnail") ? api.memory.get("Collection 2 - Thumbnail") : "Tall",
             ShowcaseCollection3:           api.memory.has("Collection 3") ? api.memory.get("Collection 3") : "Top by Publisher",
-            ShowcaseCollection3_Thumbnail: api.memory.has("Collection 3 - Thumbnail") ? api.memory.get("Collection 3 - Thumbnail") : "Wide",
             ShowcaseCollection4:           api.memory.has("Collection 4") ? api.memory.get("Collection 4") : "Top by Genre",
-            ShowcaseCollection4_Thumbnail: api.memory.has("Collection 4 - Thumbnail") ? api.memory.get("Collection 4 - Thumbnail") : "Tall",
             ShowcaseCollection5:           api.memory.has("Collection 5") ? api.memory.get("Collection 5") : "None",
-            ShowcaseCollection5_Thumbnail: api.memory.has("Collection 5 - Thumbnail") ? api.memory.get("Collection 5 - Thumbnail") : "Wide",
-            WideRatio:                     api.memory.has("Wide - Ratio") ? api.memory.get("Wide - Ratio") : "0.64",
-            TallRatio:                     api.memory.has("Tall - Ratio") ? api.memory.get("Tall - Ratio") : "0.66", //0.705
         }
     }
 
 	property var modelList: [
 		listFavorites,	//首页特殊类型
 		listPlatforms,	//首页特殊类型
-		getCollection(settings.ShowcaseCollection1, settings.ShowcaseCollection1_Thumbnail),
-		getCollection(settings.ShowcaseCollection2, settings.ShowcaseCollection2_Thumbnail),
-		getCollection(settings.ShowcaseCollection3, settings.ShowcaseCollection3_Thumbnail),
-		getCollection(settings.ShowcaseCollection4, settings.ShowcaseCollection4_Thumbnail),
-		getCollection(settings.ShowcaseCollection5, settings.ShowcaseCollection5_Thumbnail),
+		getCollection(settings.ShowcaseCollection1),
+		getCollection(settings.ShowcaseCollection2),
+		getCollection(settings.ShowcaseCollection3),
+		getCollection(settings.ShowcaseCollection4),
+		getCollection(settings.ShowcaseCollection5),
 	]
 
-    function getCollection(collectionName, collectionThumbnail) {
+    function getCollection(collectionName) {
         var collection = {
 			index: -1,
             enabled: true,
-            showBoxes: collectionThumbnail === "Box Art",
-			height: vpx(50)
         };
-
-        var width = root.width - globalMargin * 2;
-
-        switch (collectionThumbnail) {
-            case "Box Art":
-                collection.itemWidth = (width / 8.0);
-                collection.itemHeight = collection.itemWidth / 0.7//(fakebox.paintedHeight / fakebox.paintedWidth);
-				collection.height = vpx(40)
-                break;
-            case "Square":
-                collection.itemWidth = (width / 6.0);
-                collection.itemHeight = collection.itemWidth;
-                break;
-            case "Tall":
-                collection.itemWidth = (width / 8.0);
-                collection.itemHeight = collection.itemWidth / settings.TallRatio;
-                break;     
-            case "Wide":
-            default:
-                collection.itemWidth = (width / 4.0);
-                collection.itemHeight = collection.itemWidth * settings.WideRatio;
-                break;
-        }
-
-        collection.height += (collection.itemHeight + globalMargin)
 
         switch (collectionName) {
             case "Favorites":
@@ -153,7 +119,6 @@ id: root
                 break;
             case "None":
                 collection.enabled = false;
-                collection.height = 0;
                 collection.search = listNone;
                 break;
             default:
@@ -166,7 +131,7 @@ id: root
         return collection;
     }
 
-
+	property int g_shadowSize: vpx(1)
 
     // Collections
     property int currentCollectionIndex: 0
@@ -382,6 +347,7 @@ id: root
 			return {
 				main:           background,
 				secondary:      "#303030",
+				//secondary:      "#cccccc",
 				accent:         accent,
 				highlight:      accent,
 				text:           text,

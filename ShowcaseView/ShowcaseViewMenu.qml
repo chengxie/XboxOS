@@ -192,7 +192,7 @@ id: root
     ListView {
     id: mainList
 
-        anchors.fill: parent
+		anchors.fill: parent
         focus: true
 		highlightMoveDuration: 200
 		highlightRangeMode: ListView.StrictlyEnforceRange 

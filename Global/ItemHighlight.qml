@@ -22,92 +22,92 @@ Item {
 id: root
 
     property var game
-    property bool selected
-    property bool boxArt
-    property bool playVideo: (settings.AllowThumbVideo === "Yes") && !boxArt
+    property bool selected: false
+    property bool playVideo: (settings.AllowThumbVideo === "Yes")
 
-    onGameChanged: {
-        videoPreviewLoader.sourceComponent = undefined;
-        if (playVideo && selected) {
-            videoDelay.restart();
-        }
-    }
+    z: selected ? 9 : 1
+	
+	Video {
+	id: vid
+		anchors.fill: parent
+		source: game.assets.videoList.length ? game.assets.videoList[0] : ""
+		fillMode: VideoOutput.PreserveAspectCrop
+		muted: settings.AllowThumbVideoAudio === "No"
+		loops: MediaPlayer.Infinite
+		autoPlay: false
+		scale: selected ? 1.1 : 1
+		//onPlaying: videocomponent.seek(5000)
+	}
 
-    onSelectedChanged: {
-        if (!selected) {
-            videoPreviewLoader.sourceComponent = undefined;
-            videoDelay.stop();
-        }
-    }
+	// Timer to show the video
+	Timer {
+	id: videoDelay
+		interval: 100
+		onTriggered: {
+			if (game && game.assets.videos.length) {
+				vid.play();
+			}
+		}
+	}
 
-    // Timer to show the video
-    Timer {
-    id: videoDelay
+	onGameChanged: {
+		if (playVideo && selected) {
+			videoDelay.restart();
+			console.log("onGameChanged");
+		}
+	}
 
-        interval: 100
-        onTriggered: {
-            if (game && game.assets.videos.length) {
-                videoPreviewLoader.sourceComponent = videoPreviewWrapper;
-            }
-        }
-    }
+	onSelectedChanged: {
+		if (!selected) {
+			vid.stop();
+		}
+		console.log("onSelectedChanged", selected);
+	}
 
-    Timer {
-    id: stopvideo
+    //// NOTE: Video Preview
+    //Component {
+    //id: videoPreviewWrapper
 
-        interval: 1000
-        onTriggered: {
-            videoPreviewLoader.sourceComponent = undefined;
-            videoDelay.stop();
-        }
-    }
+        //Video {
+        //id: videocomponent
+            //anchors.fill: parent
+            //source: game.assets.videoList.length ? game.assets.videoList[0] : ""
+            //fillMode: VideoOutput.PreserveAspectCrop
+            //muted: settings.AllowThumbVideoAudio === "No"
+            //loops: MediaPlayer.Infinite
+            //autoPlay: true
+            ////onPlaying: videocomponent.seek(5000)
+        //}
 
-    // NOTE: Video Preview
-    Component {
-    id: videoPreviewWrapper
+    //}
 
-        Video {
-        id: videocomponent
+    //DropShadow {
+    //id: outershadow
 
-            anchors.fill: parent
-            source: game.assets.videoList.length ? game.assets.videoList[0] : ""
-            fillMode: VideoOutput.PreserveAspectCrop
-            muted: settings.AllowThumbVideoAudio === "No"
-            loops: MediaPlayer.Infinite
-            autoPlay: true
+        //anchors.fill: videocontainer
+        //horizontalOffset: 0
+        //verticalOffset: 0
+        //radius: 20.0
+        //samples: 15
+        //color: "#000000"
+        //source: videocontainer
+        //opacity: selected ? 0.5 : 0
+        //Behavior on opacity { NumberAnimation { duration: 100 } }
+        //z: -5
+    //}
 
-            //onPlaying: videocomponent.seek(5000)
-        }
+    //Item {
+    //id: videocontainer
 
-    }
+        //anchors.fill: parent
+        //scale: selected ? 1.1 : 1
 
-    DropShadow {
-    id: outershadow
+        //// Video
+        //Loader {
+        //id: videoPreviewLoader
+            //asynchronous: true
+            //anchors { fill: parent }
+        //}
+    //}
 
-        anchors.fill: videocontainer
-        horizontalOffset: 0
-        verticalOffset: 0
-        radius: 20.0
-        samples: 15
-        color: "#000000"
-        source: videocontainer
-        opacity: selected ? 0.5 : 0
-        Behavior on opacity { NumberAnimation { duration: 100 } }
-        z: -5
-    }
-
-    Item {
-    id: videocontainer
-
-        anchors.fill: parent
-        scale: selected ? 1.1 : 1
-
-        // Video
-        Loader {
-        id: videoPreviewLoader
-
-            asynchronous: true
-            anchors { fill: parent }
-        }
-    }
 }

@@ -135,7 +135,6 @@ id: root
             }
 			width: parent.width
 			numColumns: 5
-			showBoxes: true
             gameList: searchText.length === 0 ? listRecommended : searchAllGames
 
 			Rectangle {

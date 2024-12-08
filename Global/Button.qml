@@ -25,6 +25,7 @@ id: root
     property alias buttonWidth: container.width
     property real buttonMargin: vpx(25)
     width: container.width
+	height: container.height
 
     signal activated
     signal highlighted

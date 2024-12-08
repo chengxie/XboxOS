@@ -8,7 +8,13 @@ id: root
 	//ListView model传入的数据
 	property var collection
 
-	property bool selected: ListView.isCurrentItem
+	property bool selected: ListView.isCurrentItem && ListView.view.focus
+
+	property bool showTitles: settings.AlwaysShowTitles === "Yes"
+	property bool showHighlightedTitles: showTitles
+	property int titleHeight: (showTitles || showHighlightedTitles) ? vpx(36) : 0
+
+	GridSpacer { id: fakebox;  }
 
     // 动态加载器
     Loader {
@@ -20,14 +26,20 @@ id: root
 		// 根据条件切换子组件
 		sourceComponent: { 
 			if (collection instanceof ListFavorites) { 
-				parent.height = vpx(480) //vpx(410)
-				return featuredComponent
+				parent.height = vpx(480); //vpx(410)
+				return featuredComponent;
 			} else if (collection instanceof ListPlatforms) {
-				parent.height = vpx(120)
-				return platformComponent
+				parent.height = vpx(123)	//cellheight:87 + spacing:12 + globalMargin:30
+				return platformComponent;
 			}
-			parent.height = collection.height 
-			return collectionComponent  
+			fakebox.collection = collection.search
+			let numColumns = settings.GridColumns;
+			let spacing = (parent.width - globalMargin * 2) / numColumns * 0.08;
+			let cw = (parent.width - globalMargin * 2 + spacing) / numColumns - spacing;
+			let ch = cw * fakebox.ratio;
+			// 列表标题高18
+			parent.height = ch + titleHeight + vpx(18) + spacing + globalMargin;
+			return collectionComponent;
 		}
 
     }
@@ -63,22 +75,17 @@ id: root
 		
 		HorizontalCollection {
 		id: horizontalCollection
-
 			anchors.fill: parent
             focus: root.selected
             collection: root.collection
             enabled: collection.enabled
             visible: collection.enabled
-            height: collection.height
-            itemWidth: collection.itemWidth
-            itemHeight: collection.itemHeight
+            gameList: collection.search
             title: collection.title
-            search: collection.search
-            showBoxes: collection.showBoxes
 			onActivateSelected: {
 				storedHomeSecondaryIndex = currentIndex;
-				gameDetails(search.currentGame(currentIndex));
-				console.log("onActivateSelected, storedHomeSecondaryIndex: " + storedHomeSecondaryIndex);
+				gameDetails(gameList.currentGame(currentIndex));
+				//console.log("onActivateSelected, storedHomeSecondaryIndex: " + storedHomeSecondaryIndex);
 			}
 			onListHighlighted: {
 				mainList.currentIndex = index;

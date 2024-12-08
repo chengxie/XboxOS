@@ -52,8 +52,8 @@ id: root
         return "";
     }
 
-	property bool showHighlightTitle: true
-	property bool showTitle: true
+	property bool showTitles: settings.AlwaysShowTitles === "Yes"
+	property bool showHighlightedTitles: settings.AlwaysShowHighlightedTitles === "Yes"
 	property int verticalSpacing: 0
 	property int horizontalSpacing: 0
     property bool selected
@@ -71,13 +71,12 @@ id: root
     id: container
 
 		anchors {
-			fill: parent
-			bottomMargin: verticalSpacing
-			rightMargin: horizontalSpacing
+			top: parent.top 
+			left: parent.left
+			right: parent.right; rightMargin: horizontalSpacing
+			bottom: parent.bottom; bottomMargin: verticalSpacing
 		}
-
-        Behavior on opacity { NumberAnimation { duration: 200 } }
-                       
+              
         Image {
         id: screenshot
             anchors.fill: parent
@@ -86,7 +85,6 @@ id: root
             source: boxArt(gameData)
             sourceSize { width: root.width; height: root.height }
             fillMode: Image.PreserveAspectCrop
-            //fillMode: Image.PreserveAspectFit
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
 
@@ -94,26 +92,25 @@ id: root
             id: favicon
 
                 anchors { 
-                    right: parent.right; rightMargin: vpx(7); 
-                    top: parent.top; topMargin: vpx(7) 
+                    right: parent.right; rightMargin: parent.width * 0.05
+                    top: parent.top; topMargin: parent.width * 0.05 
                 }
-                width: vpx(20)
+				width: parent.width * 0.15
                 height: width
-                radius: width/2
+                radius: width / 2
                 color: theme.accent
                 visible: gameData.favorite
                 Image {
                     source: "../assets/images/favicon.svg"
                     asynchronous: true
                     anchors.fill: parent
-                    anchors.margins: vpx(4)            
+                    anchors.margins: parent.width * 0.2       
                 }
             }
         }
 
         Rectangle {
         id: regborder
-
             anchors.fill: parent
             color: "transparent"
             border.width: vpx(1)
@@ -124,32 +121,30 @@ id: root
 
         Rectangle {
         id: overlay
-        
-            width: screenshot.paintedWidth
-            height: screenshot.paintedHeight
-            anchors.centerIn: screenshot
+            anchors.fill: parent
             color: screenshot.source == "" ? theme.secondary : "black"
             opacity: screenshot.source == "" ? 1 : selected ? 0.0 : 0.2
-            visible: false
+            //visible: false
         }
-
-        
+ 
     }
 
-    Loader {
-        active: selected
-        anchors.fill: container
-        sourceComponent: border
-        asynchronous: true
-    }
+	DropShadow {
+		visible: settings.Showshadow === "Yes"
+		anchors.fill: container
+		horizontalOffset: selected ? g_shadowSize * 2 : g_shadowSize
+		verticalOffset: horizontalOffset
+		radius: 8.0
+		samples: 12
+		color: "#000000"
+		//color: "#00FF00"
+		source: container
+	}
 
-    Component {
-    id: border
-
-		ItemBorder { 
-			showTitle: showHighlightTitle
-		}
-    }
+	ItemBorder { 
+		anchors.fill: container
+		showHighlightedTitles: root.showHighlightedTitles
+	}
 
     Text {
     id: title
@@ -157,7 +152,7 @@ id: root
             top: container.bottom; topMargin: vpx(5)
             left: parent.left; right: parent.right
         }
-        visible: showTitle && !selected
+        visible: showTitles && !selected
         text: modelData ? modelData.title : ''
         color: theme.text
         font {
