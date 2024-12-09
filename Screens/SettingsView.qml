@@ -155,15 +155,26 @@ id: root
         color: theme.primary
         z: 5
 
+		Image {
+		id: settingsicon
+			source: "../assets/images/settingsicon.svg"
+			//color: selected ? theme.accent : "transparent"
+			width: vpx(35)
+			height: vpx(35)
+			anchors {
+				left: parent.left; leftMargin: globalMargin
+				verticalCenter: parent.verticalCenter
+			}
+		}
+
         // Platform title
         Text {
         id: headertitle
             
             text: "Settings"
-            
             anchors {
                 top: parent.top;
-                left: parent.left; leftMargin: globalMargin
+                left: settingsicon.right; leftMargin: vpx(15)
                 right: parent.right
                 bottom: parent.bottom
             }
@@ -267,7 +278,7 @@ id: root
         }
         width: vpx(1)
         color: theme.text
-        opacity: 0.1
+        opacity: 0.5
     }
 
     ListView {
@@ -333,7 +344,7 @@ id: root
                     font.family: subtitleFont.name
                     font.pixelSize: vpx(20)
                     verticalAlignment: Text.AlignVCenter
-                    opacity: selected ? 1 : 0.2
+                    opacity: selected ? 1 : 0.5
 
                     width: contentWidth
                     height: parent.height
@@ -350,7 +361,7 @@ id: root
                     font.family: subtitleFont.name
                     font.pixelSize: vpx(20)
                     verticalAlignment: Text.AlignVCenter
-                    opacity: selected ? 1 : 0.2
+                    opacity: selected ? 1 : 0.5
 
                     height: parent.height
                     anchors {
@@ -365,7 +376,7 @@ id: root
                         bottom: parent.bottom
                     }
                     color: theme.text
-                    opacity: selected ? 0.1 : 0
+                    opacity: selected ? 0.5 : 0
                     height: vpx(1)
                 }
 
@@ -429,6 +440,11 @@ id: root
         ListElement {
             name: "Back"
             button: "cancel"
+        }
+
+        ListElement {
+            name: "Select"
+            button: "accept"
         }
     }
     

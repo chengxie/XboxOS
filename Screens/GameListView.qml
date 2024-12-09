@@ -314,7 +314,7 @@ id: root
             button: "filters"
         }
         ListElement {
-            name: "View details"
+            name: "Select"
             button: "accept"
         }
     }
