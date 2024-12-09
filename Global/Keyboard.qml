@@ -6,7 +6,7 @@ FocusScope {
 id: root
 	
 	property int virtualKeyboardIndex: 0
-	property string searchText: ""
+	property string searchText: searchTerm
 
     signal changeFocus
 
@@ -17,11 +17,11 @@ id: root
 			left: parent.left
 		}
 		width: parent.width
-		height: 35
+		height: vpx(35)
 		color: "#171717"
 		border.color: "#171717"
 		radius: 0
-		border.width: 3
+		border.width: vpx(3)
 
 		property int selectedIndex: 0
 
@@ -45,11 +45,11 @@ id: root
 		Rectangle {
 		id: selectorRectangle
 			width: parent.width / buttonKeyRepeater.count
-			height: 35
+			height: vpx(35)
 			x: width * parent.selectedIndex;
 			color: "transparent"
 			border.color: "white"
-			border.width: 2
+			border.width: vpx(2)
 			visible: root.focus && parent.focus
 			clip: true
 			radius:0
@@ -115,7 +115,7 @@ id: root
 		color: "#171717"
 		border.color: "#171717"
 		radius: 0
-		border.width: 3
+		border.width: vpx(3)
 		focus: true
 
 		anchors {
@@ -125,21 +125,21 @@ id: root
 
 		Column {
 			anchors.fill: parent
-			spacing: 5
+			spacing: vpx(5)
 
 			GridLayout {
 			id: keyboardGrid
 				columns: 6
 				rows: 6
 				anchors.horizontalCenter: parent.horizontalCenter
-				columnSpacing: (parent.width - (6 * 40)) / 7
-				rowSpacing: (parent.height - (6 * 40)) / 7
+				columnSpacing: (parent.width - vpx((6 * 40))) / 7
+				rowSpacing: (parent.height - vpx((6 * 40))) / 7
 
 				Repeater {
 					model: 26 + 10
 					Rectangle {
-						width: 40
-						height: 40
+						width: vpx(40)
+						height: vpx(40)
 						clip: true
 						color: "transparent"
 						border.color: {
@@ -150,7 +150,7 @@ id: root
 							}
 							return "#171717"
 						}
-						border.width: 0.5
+						border.width: vpx(0.5)
 						radius: 0
 
 						Item {

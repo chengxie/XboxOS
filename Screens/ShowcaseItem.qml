@@ -74,7 +74,7 @@ id: root
             height: root.height
 			onActivateSelected: {
 				currentCollectionIndex = currentIndex;
-				softwareScreen();            
+				gameListScreen();            
 			}
 			onListHighlighted: {
 				mainList.currentIndex = index;
@@ -94,7 +94,7 @@ id: root
             visible: collection.enabled
             title: collection.title
 			onActivateSelected: {
-				gameDetails(gameList.currentGame(currentIndex));
+				gameDetailsScreen(gameList.currentGame(currentIndex));
 			}
 			onListHighlighted: {
 				mainList.currentIndex = index;

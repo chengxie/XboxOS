@@ -7,12 +7,20 @@ import "../Global"
 FocusScope {
 id: root
 	
-	property var searchList: searchAllGame ? listAllGames : listCollectionGames
+	property var searchList: searchAllGames ? listAllGames : listCollectionGames
 	property var currentList: {
-		if (searchAllGame) {
+		if (searchAllGames) {
 			return searchTerm.length > 0 ? searchList : listRecommended
 		} else {
 			return listCollectionGames
+		}
+	}
+
+	Component.onCompleted: {
+		if (storedCollectionGameIndex > -1 || (searchTerm.length > 0 && searchList.games.count > 0)) {
+			resultsGrid.focus = true
+		} else {
+			keyboard.focus = true
 		}
 	}
 
@@ -36,7 +44,6 @@ id: root
 			bottom: parent.bottom
 			left: parent.left; leftMargin: globalMargin
 		}
-		focus: true
 		onChangeFocus: {
 			if (searchList.games.count) {
 				resultsGrid.focus = true
@@ -44,6 +51,7 @@ id: root
 		}
 		onSearchTextChanged: {
 			searchTerm = searchText
+			resultsGrid.currentIndex = currentList.games.count > 0 ? 0 : -1
 		}
 	}
 
@@ -80,7 +88,7 @@ id: root
 					text: currentList.collection.name
 					color: "white"
 					font.family: titleFont.name
-					font.pixelSize: 24
+					font.pixelSize: vpx(24)
 					visible: searchTerm.length === 0
 				}
 
@@ -107,7 +115,7 @@ id: root
 						anchors.fill: parent
 						leftPadding: vpx(40)
 						font.family: titleFont.name
-						font.pixelSize: 24
+						font.pixelSize: vpx(24)
 						text: searchTerm
 						//onTextChanged: {
 							//gamesFiltered.searchTerm = text;
@@ -136,7 +144,7 @@ id: root
 				Text {
 					text: "There are no matches for your search"
 					color: "white"
-					font.pixelSize: 26
+					font.pixelSize: vpx(26)
 					anchors.centerIn: parent
 					horizontalAlignment: Text.AlignHCenter
 					verticalAlignment: Text.AlignVCenter
@@ -169,4 +177,28 @@ id: root
             previousScreen();
         }
 	}
+
+    // Helpbar buttons
+    ListModel {
+        id: searchviewHelpModel
+
+        ListElement {
+            name: "Back"
+            button: "cancel"
+        }
+        ListElement {
+            name: "Toggle favorite"
+            button: "details"
+        }
+        ListElement {
+            name: "View details"
+            button: "accept"
+        }
+    }
+
+    onFocusChanged: { 
+        if (focus) { 
+            currentHelpbarModel = searchviewHelpModel;
+        }
+    }
 }

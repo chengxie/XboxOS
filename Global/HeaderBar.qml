@@ -117,7 +117,7 @@ id: root
                     // Accept
                     if (api.keys.isAccept(event) && !event.isAutoRepeat) {
                         event.accepted = true;
-						searchAllGame = false;
+						searchAllGames = false;
 						searchScreen();
                     }
                 }

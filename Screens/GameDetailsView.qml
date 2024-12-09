@@ -82,19 +82,19 @@ id: root
 		}
 	} 
 
-	LinearGradient {
-		anchors {
-			left: parent.left; bottom: parent.bottom
-		}
-		width: parent.width
-		height: vpx(150)
-		start: Qt.point(0, height)
-		end: Qt.point(0, 0)
-		gradient: Gradient {
-			GradientStop { position: 0.0; color: "#FF000000" }
-			GradientStop { position: 1.0; color: "#00000000" }
-		}
-	} 
+	//LinearGradient {
+		//anchors {
+			//left: parent.left; bottom: parent.bottom
+		//}
+		//width: parent.width
+		//height: vpx(150)
+		//start: Qt.point(0, height)
+		//end: Qt.point(0, 0)
+		//gradient: Gradient {
+			//GradientStop { position: 0.0; color: "#FF000000" }
+			//GradientStop { position: 1.0; color: "#00000000" }
+		//}
+	//} 
 
     // Header
     Item {
@@ -258,14 +258,14 @@ id: root
             event.accepted = true;
             previousScreen();
         }
-        // Details
-        if (api.keys.isDetails(event) && !event.isAutoRepeat) {
+        // Filters
+        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
             event.accepted = true;
 			sfxToggle.play();
 			details.toggle();
         }
-        // Filters
-        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
+        // Details
+        if (api.keys.isDetails(event) && !event.isAutoRepeat) {
             event.accepted = true;
 			sfxToggle.play();
             game.favorite = !game.favorite;
@@ -287,15 +287,15 @@ id: root
             button: "cancel"
         }
         ListElement {
-            name: "Toggle details"
+            name: "Toggle favorite"
             button: "details"
         }
         ListElement {
-            name: "Toggle favorite"
+            name: "Toggle details"
             button: "filters"
         }
         ListElement {
-            name: "Play"
+            name: "Play game"
             button: "accept"
         }
     }

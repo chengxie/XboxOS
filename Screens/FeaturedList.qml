@@ -298,7 +298,7 @@ id: root
 					onEntered: { sfxNav.play(); mainList.currentIndex = 0; }
 					onClicked: {
 						if (selected)
-							gameDetails(modelData);  
+							gameDetailsScreen(modelData);  
 						else
 							mainList.currentIndex = 0;
 					}
@@ -337,7 +337,7 @@ id: root
 				event.accepted = true;
 				if (!ftue) {
 					sfxAccept.play();
-					gameDetails(gameList.currentGame(currentIndex));            
+					gameDetailsScreen(gameList.currentGame(currentIndex));            
 				}
 			}
 		}

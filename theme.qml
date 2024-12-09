@@ -133,18 +133,18 @@ id: root
 
     // Stored variables for page navigation
     property int storedHomePrimaryIndex: 0
-    property int storedCollectionGameIndex: 0
+    property int storedCollectionGameIndex: -1
 	property int showcaseHeaderMenuIndex: -1
 
     // Reset the stored game index when changing collections
-    onCurrentCollectionIndexChanged: storedCollectionGameIndex = 0
+    onCurrentCollectionIndexChanged: storedCollectionGameIndex = -1
 
     // Filtering options
     property bool showFavs: false
     property var sortByFilter: ["title", "lastPlayed", "playCount", "rating"]
     property int sortByIndex: 0
     property var orderBy: Qt.AscendingOrder
-	property bool searchAllGame: true
+	property bool searchAllGames: true
     property string searchTerm: ""
     property bool steam: currentCollection.name === "Steam"
     function steamExists() {
@@ -162,10 +162,21 @@ id: root
     }
 
     function cycleSort() {
-        if (sortByIndex < sortByFilter.length - 1)
+        if (sortByIndex < sortByFilter.length - 1) {
             sortByIndex++;
-        else
+		} else {
             sortByIndex = 0;
+		}
+		
+		switch (sortByFilter[sortByIndex]) {
+			case "title":
+				orderBy = Qt.AscendingOrder;
+				break;
+			case "lastPlayed":
+			case "playCount":
+				orderBy = Qt.DescendingOrder;
+				break;
+		}
     }
 
     function toggleOrderBy() {
@@ -245,7 +256,7 @@ id: root
             name: "showcase_screen";
         },
         State {
-            name: "gameview_screen";
+            name: "gamedetails_screen";
         },
         State {
             name: "settings_screen";
@@ -258,7 +269,13 @@ id: root
     property var lastState: []
 
     // Screen switching functions
-    function softwareScreen() {
+    function showcaseScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        root.state = "showcase_screen";
+    }
+
+    function gameListScreen() {
         sfxAccept.play();
         lastState.push(state);
         searchTerm = "";
@@ -269,14 +286,9 @@ id: root
 		sfxAccept.play();
         lastState.push(state);
         searchTerm = "";
+		storedCollectionGameIndex = -1;
         root.state = "search_screen";
 	}
-
-    function showcaseScreen() {
-        sfxAccept.play();
-        lastState.push(state);
-        root.state = "showcase_screen";
-    }
 
     function settingsScreen() {
         sfxAccept.play();
@@ -284,13 +296,7 @@ id: root
         root.state = "settings_screen";
     }
 
-    function launchGameScreen() {
-        sfxAccept.play();
-        lastState.push(state);
-        root.state = "launchgame_screen";
-    }
-
-    function gameDetails(game) {
+    function gameDetailsScreen(game) {
         sfxAccept.play();
 
         // Push the new game
@@ -300,7 +306,13 @@ id: root
 
         // Save the state before pushing the new one
         lastState.push(state);
-        root.state = "gameview_screen";
+        root.state = "gamedetails_screen";
+    }
+
+    function launchGameScreen() {
+        sfxAccept.play();
+        lastState.push(state);
+        root.state = "launchgame_screen";
     }
 
     function previousScreen() {
@@ -325,12 +337,12 @@ id: root
 
     ScreenLoader  {
         focus: (root.state === "showcase_screen")
-        sourceComponent: ShowcaseViewMenu { focus: true }
+        sourceComponent: ShowcaseView { focus: true }
     }
 
     ScreenLoader  {
         focus: (root.state === "gamelist_screen")
-        sourceComponent: GridViewMenu { focus: true }
+        sourceComponent: GameListView { focus: true }
     }
 
     ScreenLoader  {
@@ -339,29 +351,29 @@ id: root
     }
 
     ScreenLoader  {
-        focus: (root.state === "gameview_screen")
-        sourceComponent: GameView { focus: true; game: currentGame }
+        focus: (root.state === "gamedetails_screen")
+        sourceComponent: GameDetailsView { focus: true; game: currentGame }
     }
 
     ScreenLoader  {
         focus: (root.state === "launchgame_screen")
-        sourceComponent: LaunchGame { focus: true }
+        sourceComponent: LaunchGameView { focus: true }
     }
 
     ScreenLoader  {
         focus: (root.state === "settings_screen")
-        sourceComponent: SettingsScreen { focus: true }
+        sourceComponent: SettingsView { focus: true }
     }
     
     // Button help
     property var currentHelpbarModel
     ButtonHelpBar {
     id: buttonbar
-        height: vpx(50)
         anchors {
-            left: parent.left; right: parent.right; rightMargin: globalMargin
+            left: parent.left; right: parent.right
             bottom: parent.bottom
         }
+        height: vpx(50)
         visible: settings.HideButtonHelp === "No"
     }
 

@@ -218,7 +218,7 @@ id: root
                     font.pixelSize: vpx(22)
                     font.bold: true
                     verticalAlignment: Text.AlignVCenter
-                    opacity: selected ? 1 : 0.2
+                    opacity: selected ? 1 : 0.5
 
                     width: contentWidth
                     height: parent.height

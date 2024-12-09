@@ -112,7 +112,7 @@ id: root
 					onActivate: {
 						if (selected) {
 							sfxAccept.play();
-							searchAllGame = true;
+							searchAllGames = true;
 							searchScreen();
 						} else {
 							sfxNav.play();
@@ -196,7 +196,7 @@ id: root
         footer: Item { height: helpMargin }
 
         model: modelList
-		delegate: ShowcaseViewItem {
+		delegate: ShowcaseItem {
 			collection: modelList[index]
 			width: root.width
 		}

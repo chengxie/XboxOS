@@ -33,7 +33,9 @@ id: root
 
         onFocusChanged: {
             if (focus) {
-                currentIndex = storedCollectionGameIndex;
+				if (storedCollectionGameIndex >= 0) {
+					currentIndex = storedCollectionGameIndex;
+				}
 				if (gameList.games.count) {
 					if (currentIndex >= gameList.games.count) {
 						currentIndex = 0;
@@ -51,7 +53,11 @@ id: root
 		}
 
 		Component.onCompleted: {
-			currentIndex = storedCollectionGameIndex;
+			if (storedCollectionGameIndex >= 0) {
+				currentIndex = storedCollectionGameIndex;
+			} else {
+				currentIndex = gameList.games.count ? 0 : -1;
+			}
 			positionViewAtIndex(currentIndex, GridView.Visible);
 		}
 
@@ -70,7 +76,7 @@ id: root
 				showHighlightedTitles:	root.showHighlightedTitles
 				onActivate: {
 					if (selected) {
-						gameDetails(modelData);
+						gameDetailsScreen(modelData);
 					} else {
 						GridView.view.currentIndex = index;
 					}
@@ -79,13 +85,14 @@ id: root
 					GridView.view.currentIndex = index;
 				}
 				Keys.onPressed: {
+					sfxNav.play();
 					// Toggle favorite
 					if (api.keys.isDetails(event) && !event.isAutoRepeat) {
 						event.accepted = true;
 						sfxToggle.play();
 						modelData.favorite = !modelData.favorite;
 					} else {
-						sfxNav.play();
+						event.accepted = false;
 					}
 				}
 			}

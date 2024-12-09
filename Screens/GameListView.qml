@@ -240,8 +240,8 @@ id: root
             return;
         }
 
-        // Details
-        if (api.keys.isDetails(event) && !event.isAutoRepeat) {
+        // Filters
+        if (api.keys.isFilters(event) && !event.isAutoRepeat) {
             event.accepted = true;
             sfxToggle.play();
             cycleSort();
@@ -252,6 +252,7 @@ id: root
         if (api.keys.isPageDown(event) && !event.isAutoRepeat) {
             event.accepted = true;
             isRightTriggerPressed = navigateToNextLetter(+1) ? true : isRightTriggerPressed;
+			console.log("isRightTriggerPressed: " + isRightTriggerPressed);
             return;
         }
 
@@ -259,6 +260,7 @@ id: root
         if (api.keys.isPageUp(event) && !event.isAutoRepeat) {
             event.accepted = true;
             isLeftTriggerPressed = navigateToNextLetter(-1) ? true : isLeftTriggerPressed;
+			console.log("isLeftTriggerPressed: " + isLeftTriggerPressed);
             return;
         }
 

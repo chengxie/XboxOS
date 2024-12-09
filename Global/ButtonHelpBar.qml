@@ -16,14 +16,29 @@
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.11
+import QtGraphicalEffects 1.0
 
 Item {
 id: root
 
+	LinearGradient {
+		anchors {
+			left: parent.left; right: parent.right
+			bottom: parent.bottom
+		}
+		height: vpx(150)
+		start: Qt.point(0, height)
+		end: Qt.point(0, 0)
+		gradient: Gradient {
+			GradientStop { position: 0.0; color: "#FF000000" }
+			GradientStop { position: 1.0; color: "#00000000" }
+		}
+	} 
+
     Component {
         id: buttonhelpDelegate
         Row {
-            spacing: 10
+            spacing: vpx(10)
             Image {
                 source: "../assets/images/controller/" + processButtonArt(button) + ".png"
                 width: vpx(30)
@@ -43,6 +58,7 @@ id: root
 
     ListView {
         anchors.fill: parent
+		anchors.rightMargin: globalMargin
         model: currentHelpbarModel
         delegate: buttonhelpDelegate
         orientation: ListView.Horizontal
@@ -85,8 +101,7 @@ id: root
             buttonModel = api.keys.accept;
         }
 
-        var i;
-        for (i = 0; buttonModel.length; i++) {
+        for (let i = 0; buttonModel.length; i++) {
             if (buttonModel[i].name().includes("Gamepad")) {
             var buttonValue = buttonModel[i].key.toString(16)
             return buttonValue.substring(buttonValue.length-1, buttonValue.length);
