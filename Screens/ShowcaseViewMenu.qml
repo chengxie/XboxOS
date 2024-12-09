@@ -21,8 +21,6 @@ import QtGraphicalEffects 1.0
 import QtMultimedia 5.9
 import QtQml.Models 2.10
 import "../Global"
-import "../GridView"
-import "../GameDetails"
 import "../utils.js" as Utils
 import "qrc:/qmlutils" as PegasusUtils
 
@@ -114,6 +112,7 @@ id: root
 					onActivate: {
 						if (selected) {
 							sfxAccept.play();
+							searchAllGame = true;
 							searchScreen();
 						} else {
 							sfxNav.play();

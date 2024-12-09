@@ -69,7 +69,7 @@ id: root
         else {
             // NOTE: We should be using the scroll proxy here, but this is significantly faster.
             if (sortedGames == null) {
-                sortedGames = list.collection.games.toVarArray().map(g => g.title.toLowerCase()).sort((a, b) => a.localeCompare(b));
+                sortedGames = listCollectionGames.collection.games.toVarArray().map(g => g.title.toLowerCase()).sort((a, b) => a.localeCompare(b));
             }
 
             var currentGameTitle = sortedGames[currentIndex];
@@ -125,8 +125,6 @@ id: root
 
         return true;
     }
-
-    ListCollectionGames { id: list; }
 
     Rectangle {
     id: navigationOverlay
@@ -193,7 +191,7 @@ id: root
 			right: parent.right; rightMargin: globalMargin
 			bottom: parent.bottom; bottomMargin: globalMargin
 		}
-		gameList: list
+		gameList: listCollectionGames
 		Keys.onUpPressed: {
 			if (currentIndex < numColumns) {
 				sfxNav.play();

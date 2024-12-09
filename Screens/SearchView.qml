@@ -3,34 +3,16 @@ import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.12
 import SortFilterProxyModel 0.2
 import "../Global"
-import "../Lists"
-
 
 FocusScope {
 id: root
 	
-	property var collection: api.allGames 
-	property alias searchText: searchInput.text
-	property alias gamesFiltered: searchAllGames.games
-
-	Item {
-	id: searchAllGames
-		property alias games: gamesFiltered
-		function currentGame(index) { return collection.get(gamesFiltered.mapToSource(index)) }
-		property int max: gamesFiltered.count
-		SortFilterProxyModel {
-		id: gamesFiltered
-			sourceModel: api.allGames
-			property string searchTerm: ""
-			property bool hasResults: count > 0
-			filters: [
-				RegExpFilter {
-					roleName: "title";
-					pattern: "^" + gamesFiltered.searchTerm.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ".+";
-					caseSensitivity: Qt.CaseInsensitive;
-					enabled: gamesFiltered.searchTerm !== "";
-				}
-			]
+	property var searchList: searchAllGame ? listAllGames : listCollectionGames
+	property var currentList: {
+		if (searchAllGame) {
+			return searchTerm.length > 0 ? searchList : listRecommended
+		} else {
+			return listCollectionGames
 		}
 	}
 
@@ -52,9 +34,17 @@ id: root
 		anchors {
 			top: header.bottom;
 			bottom: parent.bottom
-			left: parent.left; leftMargin: globalMargin//parent.width * 0.03
+			left: parent.left; leftMargin: globalMargin
 		}
 		focus: true
+		onChangeFocus: {
+			if (searchList.games.count) {
+				resultsGrid.focus = true
+			}
+		}
+		onSearchTextChanged: {
+			searchTerm = searchText
+		}
 	}
 
 	Item {
@@ -62,8 +52,8 @@ id: root
 		anchors {
 			top: header.bottom;
             bottom: parent.bottom; bottomMargin: globalMargin
-			left: keyboard.right; leftMargin: globalMargin//parent.width * 0.03
-			right: parent.right; rightMargin: globalMargin//parent.width * 0.03
+			left: keyboard.right; leftMargin: globalMargin
+			right: parent.right; rightMargin: globalMargin
 		}
 
 		Rectangle {
@@ -87,17 +77,17 @@ id: root
 				id: searchPlaceholder
 					anchors.fill: parent
 					anchors.leftMargin: globalMargin
-					text: "Recommended games"
+					text: currentList.collection.name
 					color: "white"
 					font.family: titleFont.name
 					font.pixelSize: 24
-					visible: searchText.length === 0
+					visible: searchTerm.length === 0
 				}
 
 				Rectangle {
 					anchors.fill: parent
 					anchors.leftMargin: globalMargin
-					visible: searchText.trim().length > 0
+					visible: searchTerm.length > 0
 					color: parent.color
 
 					Image {
@@ -118,9 +108,10 @@ id: root
 						leftPadding: vpx(40)
 						font.family: titleFont.name
 						font.pixelSize: 24
-						onTextChanged: {
-							gamesFiltered.searchTerm = text.trim();
-						}
+						text: searchTerm
+						//onTextChanged: {
+							//gamesFiltered.searchTerm = text;
+						//}
 					}
 				}
 			}
@@ -135,12 +126,12 @@ id: root
             }
 			width: parent.width
 			numColumns: 5
-            gameList: searchText.length === 0 ? listRecommended : searchAllGames
+            gameList: currentList //searchTerm.length == 0 ? listRecommended : searchList
 
 			Rectangle {
 				anchors.fill: parent
 				color: "transparent"
-				visible: !gamesFiltered.hasResults
+				visible: !searchList.games.count
 
 				Text {
 					text: "There are no matches for your search"
@@ -174,6 +165,7 @@ id: root
         // Back
         if (api.keys.isCancel(event) && !event.isAutoRepeat) {
             event.accepted = true;
+			searchTerm = ""
             previousScreen();
         }
 	}

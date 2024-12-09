@@ -27,21 +27,28 @@ id: root
 		sourceComponent: { 
 			switch (collection.shortName) {
 				case "favorites":
-					parent.height = vpx(480); //vpx(410)
-					return featuredComponent;
+					{
+						parent.height = vpx(480); //vpx(410)
+						return featuredComponent;
+					}
+					break;
 				case "platforms":
-					parent.height = vpx(123)	//cellheight:87 + spacing:12 + globalMargin:30
-					return platformComponent;
+					{
+						parent.height = vpx(123)	//cellheight:87 + spacing:12 + globalMargin:30
+						return platformComponent;
+					}
+					break;
 				default:
-					fakebox.collection = collection.search
-					let numColumns = settings.GridColumns;
-					let spacing = (parent.width - globalMargin * 2) / numColumns * 0.08;
-					let cw = (parent.width - globalMargin * 2 + spacing) / numColumns - spacing;
-					let ch = cw * fakebox.ratio;
-					// 列表标题高18
-					parent.height = ch + titleHeight + vpx(18) + spacing + globalMargin;
-					return collectionComponent;
+					break;
 			}
+			fakebox.collection = collection.search
+			let numColumns = settings.GridColumns;
+			let spacing = (parent.width - globalMargin * 2) / numColumns * 0.08;
+			let cw = (parent.width - globalMargin * 2 + spacing) / numColumns - spacing;
+			let ch = cw * fakebox.ratio;
+			// 列表标题高18
+			parent.height = ch + titleHeight + vpx(18) + spacing + globalMargin;
+			return collectionComponent;
 		}
 
     }

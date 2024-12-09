@@ -107,92 +107,21 @@ id: root
         ObjectModel {
         id: headermodel
 
-            // Search bar
-            Item {
-            id: searchbar
-                
-                property bool selected: ListView.isCurrentItem && root.focus
-                onSelectedChanged: if (!selected && searchActive) toggleSearch();
-
-                width: (searchActive || searchTerm != "") ? vpx(250) : height
-                height: vpx(40)
-
-                Behavior on width {
-                    PropertyAnimation { duration: 200; easing.type: Easing.OutQuart; easing.amplitude: 2.0; easing.period: 1.5 }
-                }
-                
-                Rectangle {
-                    width: parent.width
-                    height: parent.height
-                    color: searchbar.selected && !searchActive ? theme.accent : "white"
-                    radius: height/2
-                    opacity: searchbar.selected && !searchActive ? 1 : searchActive ? 0.4 : 0.2
-
-                }
-
-                Image {
-                id: searchicon
-
-                    width: height
-                    height: vpx(18)
-                    anchors { 
-                        left: parent.left; leftMargin: vpx(11)
-                        top: parent.top; topMargin: vpx(10)
-                    }
-                    source: "../assets/images/searchicon.svg"
-                    opacity: searchbar.selected && !searchActive ? 1 : searchActive ? 0.8 : 0.5
-                    asynchronous: true
-                }
-
-                TextInput {
-                id: searchInput
-                    
-                    anchors { 
-                        left: searchicon.right; leftMargin: vpx(10)
-                        top: parent.top; bottom: parent.bottom
-                        right: parent.right; rightMargin: vpx(15)
-                    }
-                    verticalAlignment: Text.AlignVCenter
-                    color: theme.text
-                    focus: searchbar.selected && searchActive
-                    font.family: subtitleFont.name
-                    font.pixelSize: vpx(18)
-                    clip: true
-                    text: searchTerm
-                    onTextEdited: {
-                        searchTerm = searchInput.text
-                    }
-                }
-
-                // Mouse/touch functionality
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: !searchActive
-                    hoverEnabled: true
-                    onEntered: {}
-                    onExited: {}
-                    onClicked: {
-                        if (!searchActive)
-                        {
-                            toggleSearch();
-                            searchInput.selectAll();
-                        }
-                    }
-                }
-
+			IconButton {
+			id: searchButton
+				property bool selected: ListView.isCurrentItem && root.focus
+				icon: "../assets/images/searchicon.svg"
+				color: selected ? theme.accent : "transparent"
+				opacity: 0.8
                 Keys.onPressed: {
                     // Accept
                     if (api.keys.isAccept(event) && !event.isAutoRepeat) {
                         event.accepted = true;
-                        if (!searchActive) {
-                            toggleSearch();
-                            searchInput.selectAll();
-                        } else {
-                            searchInput.selectAll();
-                        }
+						searchAllGame = false;
+						searchScreen();
                     }
                 }
-            }
+			}
 
             // Ascending/descending
             Item {
@@ -200,10 +129,9 @@ id: root
 
                 property bool selected: ListView.isCurrentItem && root.focus
                 width: directiontitle.contentWidth + vpx(30)
-                height: searchbar.height
+                height: vpx(40)
 
-                Rectangle
-                { 
+                Rectangle { 
                     anchors.fill: parent
                     radius: height/2
                     color: theme.accent
@@ -237,10 +165,9 @@ id: root
 
                 property bool selected: ListView.isCurrentItem && root.focus
                 width: ordertitle.contentWidth + vpx(30)
-                height: searchbar.height
+                height: vpx(40)
 
-                Rectangle
-                { 
+                Rectangle { 
                     anchors.fill: parent
                     radius: height/2
                     color: theme.accent
@@ -274,10 +201,9 @@ id: root
 
                 property bool selected: ListView.isCurrentItem && root.focus
                 width: filtertitle.contentWidth + vpx(30)
-                height: searchbar.height
+                height: vpx(40)
 
-                Rectangle
-                { 
+                Rectangle { 
                     anchors.fill: parent
                     radius: height/2
                     color: theme.accent
@@ -305,6 +231,7 @@ id: root
                     }
                 }
             }
+
         }
 
         // Buttons

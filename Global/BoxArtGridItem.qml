@@ -16,41 +16,10 @@
 
 import QtQuick 2.8
 import QtGraphicalEffects 1.12
+import "../utils.js" as Utils
 
 Item {
 id: root
-
-    // NOTE: This is technically duplicated from utils.js but importing that file into every delegate causes crashes
-    function steamAppID (gameData) {
-        var str = gameData.assets.boxFront.split("header");
-        return str[0];
-    }
-
-    function steamBoxArt(gameData) {
-        return steamAppID(gameData) + '/library_600x900_2x.jpg';
-    }
-
-    function boxArt(data) {
-        if (data != null) {
-            if (data.assets.boxFront.includes("/header.jpg")) 
-            return steamBoxArt(data);
-            else {
-            if (data.assets.boxFront != "")
-                return data.assets.boxFront;
-            else if (data.assets.poster != "")
-                return data.assets.poster;
-            else if (data.assets.banner != "")
-                return data.assets.banner;
-            else if (data.assets.tile != "")
-                return data.assets.tile;
-            else if (data.assets.cartridge != "")
-                return data.assets.cartridge;
-            else if (data.assets.logo != "")
-                return data.assets.logo;
-            }
-        }
-        return "";
-    }
 
 	property bool showTitles: settings.AlwaysShowTitles === "Yes"
 	property bool showHighlightedTitles: settings.AlwaysShowHighlightedTitles === "Yes"
@@ -82,7 +51,7 @@ id: root
             anchors.fill: parent
 
             asynchronous: true
-            source: boxArt(gameData)
+            source: Utils.boxArt(gameData)
             sourceSize { width: root.width; height: root.height }
             fillMode: Image.PreserveAspectCrop
             anchors.horizontalCenter: parent.horizontalCenter

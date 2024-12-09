@@ -28,7 +28,15 @@ id: root
     id: gamesFiltered
 
         sourceModel: api.allGames
-        filters: IndexFilter { maximumIndex: max - 1 }
+		filters: [
+			RegExpFilter {
+				roleName: "title";
+				pattern: searchTerm;
+				caseSensitivity: Qt.CaseInsensitive;
+				enabled: searchTerm != ""
+			},
+            IndexFilter { maximumIndex: max - 1; enabled: max }
+		]
     }
 
     property var collection: {

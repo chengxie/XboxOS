@@ -21,7 +21,6 @@ import SortFilterProxyModel 0.2
 import QtQml.Models 2.10
 import QtMultimedia 5.9
 import "../Global"
-import "../GridView"
 import "../Lists"
 import "../utils.js" as Utils
 
@@ -205,7 +204,6 @@ id: root
 			property bool needHide: false
 			function toggle() {
 				needHide = !needHide;
-				//console.log("gameLogo: " + gameLogo.height);
 			}
 
             Image {
@@ -277,7 +275,6 @@ id: root
             event.accepted = true;
 			sfxAccept.play();
 			launchGame(game);
-			console.log("Game launched !!!!!!");
         }
     }
 

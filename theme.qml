@@ -18,13 +18,8 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.11
 import SortFilterProxyModel 0.2
 import QtMultimedia 5.9
-import "GridView"
 import "Global"
 import "Screens"
-import "GameDetails"
-import "ShowcaseView"
-import "Search"
-import "Settings"
 import "Lists"
 import "utils.js" as Utils
 import "themes.js" as Themes
@@ -37,15 +32,16 @@ id: root
     FontLoader { id: bodyFont; source:       "assets/fonts/YaHei.ttf" }
 
     // Pull in our custom lists and define
-    ListAllGames    { id: listNone;        max: 0 }
-    ListAllGames    { id: listAllGames;    max: settings.ShowcaseColumns }
-    ListFavorites   { id: listFavorites;   max: settings.ShowcaseColumns }
-    ListLastPlayed  { id: listLastPlayed;  max: settings.ShowcaseColumns }
-    ListMostPlayed  { id: listMostPlayed;  max: settings.ShowcaseColumns }
-    ListRecommended { id: listRecommended; max: settings.ShowcaseColumns }
-    ListPublisher   { id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub }
-    ListGenre       { id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre }
-	ListPlatforms	{ id: listPlatforms;   max: 0; property int index: -1 }
+    ListAllGames		{ id: listNone;        max: 0 }
+    ListAllGames		{ id: listAllGames;	   max: 0 }
+    ListCollectionGames { id: listCollectionGames; }
+    ListFavorites		{ id: listFavorites;   max: settings.ShowcaseColumns }
+    ListLastPlayed		{ id: listLastPlayed;  max: settings.ShowcaseColumns }
+    ListMostPlayed		{ id: listMostPlayed;  max: settings.ShowcaseColumns }
+    ListRecommended		{ id: listRecommended; max: settings.ShowcaseColumns }
+    ListPublisher		{ id: listPublisher;   max: settings.ShowcaseColumns; publisher: randoPub }
+    ListGenre			{ id: listGenre;       max: settings.ShowcaseColumns; genre: randoGenre }
+	ListPlatforms		{ id: listPlatforms;   max: 0 }
 
     property string randoPub: (Utils.returnRandom(Utils.uniqueValuesArray('publisher')) || '')
     property string randoGenre: (Utils.returnRandom(Utils.uniqueValuesArray('genreList'))[0] || '').toLowerCase()
@@ -79,8 +75,6 @@ id: root
     }
 
 	property var modelList: [
-		//listFavorites,	
-		//listPlatforms,	//首页特殊类型
 		getCollection("Favorites"),
 		getCollection("Platforms"),
 		getCollection(settings.ShowcaseCollection1),
@@ -150,6 +144,7 @@ id: root
     property var sortByFilter: ["title", "lastPlayed", "playCount", "rating"]
     property int sortByIndex: 0
     property var orderBy: Qt.AscendingOrder
+	property bool searchAllGame: true
     property string searchTerm: ""
     property bool steam: currentCollection.name === "Steam"
     function steamExists() {
@@ -185,7 +180,7 @@ id: root
         if (game !== null) {
             //if (game.collections.get(0).name === "Steam")
                 launchGameScreen();
-
+			
             saveCurrentState(game);
             game.launch();
         } else {
@@ -202,7 +197,6 @@ id: root
         api.memory.set('savedState', root.state);
         api.memory.set('savedCollection', currentCollectionIndex);
         api.memory.set('lastState', JSON.stringify(lastState));
-        api.memory.set('lastGame', JSON.stringify(lastGame));
         api.memory.set('storedHomePrimaryIndex', storedHomePrimaryIndex);
         api.memory.set('storedCollectionGameIndex', storedCollectionGameIndex);
 
@@ -215,7 +209,6 @@ id: root
     property bool fromGame: api.memory.has('To Game');
     function returnedFromGame() {
         lastState                   = JSON.parse(api.memory.get('lastState'));
-        lastGame                    = JSON.parse(api.memory.get('lastGame'));
         currentCollectionIndex      = api.memory.get('savedCollection');
         storedHomePrimaryIndex      = api.memory.get('storedHomePrimaryIndex');
         storedCollectionGameIndex   = api.memory.get('storedCollectionGameIndex');
@@ -227,7 +220,6 @@ id: root
         api.memory.unset('savedState');
         api.memory.unset('savedGame');
         api.memory.unset('lastState');
-        api.memory.unset('lastGame');
         api.memory.unset('storedHomePrimaryIndex');
         api.memory.unset('storedCollectionGameIndex');
 
@@ -244,141 +236,120 @@ id: root
     // State settings
     states: [
         State {
-            name: "softwaregridscreen";
+            name: "gamelist_screen";
         },
 		State {
-			name: "softwaresearchscreen";
+			name: "search_screen";
 		},
         State {
-            name: "showcasescreen";
+            name: "showcase_screen";
         },
         State {
-            name: "gameviewscreen";
+            name: "gameview_screen";
         },
         State {
-            name: "settingsscreen";
+            name: "settings_screen";
         },
         State {
-            name: "launchgamescreen";
+            name: "launchgame_screen";
         }
     ]
 
     property var lastState: []
-    property var lastGame: []
 
     // Screen switching functions
     function softwareScreen() {
         sfxAccept.play();
         lastState.push(state);
         searchTerm = "";
-        root.state = "softwaregridscreen";
+        root.state = "gamelist_screen";
     }
 
 	function searchScreen() {
 		sfxAccept.play();
         lastState.push(state);
-        root.state = "softwaresearchscreen";
+        searchTerm = "";
+        root.state = "search_screen";
 	}
 
     function showcaseScreen() {
         sfxAccept.play();
         lastState.push(state);
-        root.state = "showcasescreen";
+        root.state = "showcase_screen";
     }
 
     function settingsScreen() {
         sfxAccept.play();
         lastState.push(state);
-        root.state = "settingsscreen";
+        root.state = "settings_screen";
     }
 
     function launchGameScreen() {
         sfxAccept.play();
         lastState.push(state);
-        root.state = "launchgamescreen";
+        root.state = "launchgame_screen";
     }
 
     function gameDetails(game) {
         sfxAccept.play();
-        // As long as there is a state history, save the last game
-        if (lastState.length != 0)
-            lastGame.push(currentGame);
 
         // Push the new game
-        if (game !== null)
+        if (game !== null) {
             currentGame = game;
+		}
 
         // Save the state before pushing the new one
         lastState.push(state);
-        root.state = "gameviewscreen";
+        root.state = "gameview_screen";
     }
-
 
     function previousScreen() {
         sfxBack.play();
-        if (state == lastState[lastState.length-1])
-            popLastGame();
-
         state = lastState[lastState.length - 1];
         lastState.pop();
     }
 
-    function popLastGame() {
-        if (lastGame.length) {
-            currentGame = lastGame[lastGame.length-1];
-            lastGame.pop();
-        }
-    }
-
     // Set default state to the platform screen
     Component.onCompleted: { 
-        root.state = "showcasescreen";
+        root.state = "showcase_screen";
         if (fromGame)
             returnedFromGame();
     }
 
     // Background
     Rectangle {
-    id: background
         anchors.fill: parent
         color: theme.primary
         //Image { source: "assets/images/backgrounds/halo.jpg"; fillMode: Image.PreserveAspectFit; anchors.fill: parent;  opacity: 0.3 }
     }
 
     ScreenLoader  {
-    id: showcaseLoader
-        focus: (root.state === "showcasescreen")
+        focus: (root.state === "showcase_screen")
         sourceComponent: ShowcaseViewMenu { focus: true }
     }
 
     ScreenLoader  {
-    id: gridviewloader
-        focus: (root.state === "softwaregridscreen")
+        focus: (root.state === "gamelist_screen")
         sourceComponent: GridViewMenu { focus: true }
     }
 
     ScreenLoader  {
-    id: searchviewloader
-        focus: (root.state === "softwaresearchscreen")
+        focus: (root.state === "search_screen")
         sourceComponent: SearchView { focus: true }
     }
 
     ScreenLoader  {
-    id: gameviewloader
-        focus: (root.state === "gameviewscreen")
+        focus: (root.state === "gameview_screen")
         sourceComponent: GameView { focus: true; game: currentGame }
-        onActiveChanged: if (!active) popLastGame();
     }
 
     ScreenLoader  {
-    id: launchgameloader
-        focus: (root.state === "launchgamescreen")
+        focus: (root.state === "launchgame_screen")
         sourceComponent: LaunchGame { focus: true }
     }
 
     ScreenLoader  {
-    id: settingsloader
-        focus: (root.state === "settingsscreen")
+        focus: (root.state === "settings_screen")
         sourceComponent: SettingsScreen { focus: true }
     }
     
@@ -386,7 +357,6 @@ id: root
     property var currentHelpbarModel
     ButtonHelpBar {
     id: buttonbar
-
         height: vpx(50)
         anchors {
             left: parent.left; right: parent.right; rightMargin: globalMargin

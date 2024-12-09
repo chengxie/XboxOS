@@ -27,11 +27,12 @@ id: root
     property var fakesource: {
 		if (collection) {
 			for (let i = 0; i < 5; i++) {
-				//var gamesource = currentCollection.games.get(i);
 				let gamesource = collection.games.get(i);
-				let boxart = Utils.boxArt(gamesource);
-				if (boxart !== "") {
-					return boxart;
+				if (gamesource && gamesource.assets) {
+					let boxart = Utils.boxArt(gamesource);
+					if (boxart !== "") {
+						return boxart;
+					}
 				}
 			}
 		}

@@ -17,7 +17,6 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.11
 import "../Lists"
-import "../GridView"
 
 FocusScope {
 id: root
@@ -84,7 +83,7 @@ id: root
 			positionViewAtIndex(currentIndex, ListView.Visible)
 		}
 
-        model: gameList.games ? gameList.games : api.allGames
+		model: gameList ? gameList.games : null
         delegate: BoxArtGridItem {
 			selected:				ListView.isCurrentItem && ListView.view.focus
 			width:					ListView.view.cellWidth	* (selected ? 1.1 : 1)
